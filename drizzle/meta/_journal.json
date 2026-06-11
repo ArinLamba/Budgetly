@@ -1,0 +1,20 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1780577108993,
+      "tag": "0000_careless_norrin_radd",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1781000433750,
+      "tag": "0001_add_transaction_appearance",
+      "breakpoints": true
+    }
+  ]
+}
