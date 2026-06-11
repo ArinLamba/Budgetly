@@ -1,11 +1,9 @@
 import {
   DonutChart,
-  MetricCard,
   PageShell,
   PageTitle,
   SectionCard,
-  TrendLine,
-  icons,
+  SpendingTrendChart,
 } from "../_components/finance-ui";
 import { Button } from "@/components/ui/button";
 import {
@@ -15,6 +13,7 @@ import {
   getTotals,
   getTrendPoints,
 } from "../_lib/finance-data";
+import { ReportsMetricGrid } from "./_components/reports-metric-grid";
 
 export default async function ReportsPage({
   searchParams,
@@ -38,15 +37,11 @@ export default async function ReportsPage({
         Reports
       </PageTitle>
 
-      <div className="grid gap-4 md:grid-cols-3">
-        <MetricCard icon={icons.CircleDollarSign} label="Total Income" tone="green" trend="+0% vs last month" value={totals.income.toLocaleString("en-IN", { currency: "INR", maximumFractionDigits: 0, style: "currency" })} />
-        <MetricCard icon={icons.ReceiptText} label="Total Expenses" tone="red" trend="+0% vs last month" value={totals.expense.toLocaleString("en-IN", { currency: "INR", maximumFractionDigits: 0, style: "currency" })} />
-        <MetricCard icon={icons.Wallet} label="Net Savings" tone="violet" trend="+0% vs last month" value={(totals.income - totals.expense).toLocaleString("en-IN", { currency: "INR", maximumFractionDigits: 0, style: "currency" })} />
-      </div>
+      <ReportsMetricGrid expense={totals.expense} income={totals.income} />
 
       <SectionCard className="mt-4">
         <h2 className="mb-3 text-sm font-bold text-slate-950">Spending Trend</h2>
-        <TrendLine values={trendPoints} />
+        <SpendingTrendChart values={trendPoints} />
       </SectionCard>
 
       <SectionCard className="mt-4">

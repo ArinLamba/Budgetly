@@ -3,14 +3,12 @@ import {
   BudgetSummary,
   CategoryProgressList,
   DonutChart,
-  MetricCard,
   MiniCalendar,
   PageShell,
   PageTitle,
   SectionCard,
   SpendingCalendarLegend,
   TransactionMiniList,
-  icons,
 } from "../_components/finance-ui";
 import { CategoryPeriodControls, MonthControls } from "../_components/period-controls";
 import {
@@ -22,24 +20,31 @@ import {
   getTotals,
 } from "../_lib/finance-data";
 import { Plus } from "lucide-react";
+import Link from "next/link";
+import {
+  getCategoryPeriodTransactions,
+  normalizeCategoryPeriod,
+} from "./_lib/dashboard-period";
+import { DashboardMetricGrid } from "./_components/dashboard-metric-grid";
 
 export default async function DashboardPage({
   searchParams,
 }: PageProps<"/dashboard">) {
   const params = await searchParams;
   const month = typeof params.month === "string" ? params.month : undefined;
-  const categoryPeriod =
-    typeof params.categoryPeriod === "string" ? params.categoryPeriod : "month";
+  const categoryPeriod = normalizeCategoryPeriod(
+    typeof params.categoryPeriod === "string"
+      ? params.categoryPeriod
+      : undefined
+  );
   const data = await getFinanceData(month);
   const monthTransactions = getMonthTransactions(data.transactions, data.monthKey);
-  const categoryTransactions =
-    categoryPeriod === "all"
-      ? data.transactions
-      : categoryPeriod === "year"
-        ? data.transactions.filter((transaction) =>
-            transaction.date.startsWith(data.monthKey.slice(0, 4))
-          )
-        : monthTransactions;
+  const categoryTransactions = getCategoryPeriodTransactions({
+    monthKey: data.monthKey,
+    monthTransactions,
+    period: categoryPeriod,
+    transactions: data.transactions,
+  });
   const totals = getTotals(monthTransactions);
   const allTimeTotals = getTotals(data.transactions);
   const balance =
@@ -70,12 +75,13 @@ export default async function DashboardPage({
         Good morning, Honey
       </PageTitle>
 
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <MetricCard icon={icons.Wallet} label="Total Balance" tone="blue" trend="+0% vs last month" value={balance.toLocaleString("en-IN", { currency: "INR", maximumFractionDigits: 0, style: "currency" })} />
-        <MetricCard icon={icons.CircleDollarSign} label="Income This Month" tone="green" trend="+0% vs last month" value={totals.income.toLocaleString("en-IN", { currency: "INR", maximumFractionDigits: 0, style: "currency" })} />
-        <MetricCard icon={icons.ReceiptText} label="Expenses This Month" tone="red" trend="+0% vs last month" value={totals.expense.toLocaleString("en-IN", { currency: "INR", maximumFractionDigits: 0, style: "currency" })} />
-        <MetricCard icon={icons.Goal} label="Budget Remaining" tone="violet" trend={`${budgets.length} active budgets`} value={budgetRemaining.toLocaleString("en-IN", { currency: "INR", maximumFractionDigits: 0, style: "currency" })} />
-      </div>
+      <DashboardMetricGrid
+        balance={balance}
+        budgetCount={budgets.length}
+        budgetRemaining={budgetRemaining}
+        expense={totals.expense}
+        income={totals.income}
+      />
 
       <div className="mt-4 grid gap-4 xl:grid-cols-[1.35fr_1fr]">
         <SectionCard>
@@ -88,9 +94,9 @@ export default async function DashboardPage({
         <SectionCard>
           <div className="mb-4 flex items-center justify-between">
             <h2 className="text-sm font-bold text-slate-950">Recent Transactions</h2>
-            <Button variant="ghost" className="h-7 px-2 text-xs text-violet-700">
+            <Link href="/transactions"  className="h-7 px-2 text-xs text-violet-700">
               View all
-            </Button>
+            </Link>
           </div>
           <TransactionMiniList transactions={data.transactions} />
         </SectionCard>

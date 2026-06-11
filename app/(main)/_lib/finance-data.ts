@@ -65,6 +65,7 @@ export async function getFinanceData(monthKey = getCurrentMonthKey()) {
           amount: transactionsTable.amount,
           category: categoriesTable.name,
           categoryColor: categoriesTable.color,
+          categoryIcon: categoriesTable.icon,
           categoryId: transactionsTable.categoryId,
           color: transactionsTable.color,
           date: transactionsTable.transactionDate,
@@ -161,6 +162,7 @@ export function getCategorySummaries(
         amount,
         color: category.color,
         id: category.id,
+        icon: category.icon,
         name: category.name,
         percent: totalExpense > 0 ? Math.round((amount / totalExpense) * 100) : 0,
       };
