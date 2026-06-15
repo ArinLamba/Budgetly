@@ -441,7 +441,7 @@ function TransactionRow({
 
 function PhonePreview({ title }: { title: string }) {
   return (
-    <div className="rounded-[28px] border-[6px] border-slate-950 bg-white p-4 shadow-xl">
+    <div className="rounded-md border-[6px] border-slate-950 bg-white p-4 shadow-xl">
       <div className="flex items-center justify-between">
         <p className="text-lg font-black">{title}</p>
         <span className="text-xs font-black">9:41</span>

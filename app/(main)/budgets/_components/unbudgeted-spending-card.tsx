@@ -15,7 +15,7 @@ export function UnbudgetedSpendingCard({
   return (
     <div className="mt-5 rounded-lg border bg-background p-4 shadow-xs">
       <div className="mb-3 flex items-center justify-between gap-3">
-        <h2 className="text-sm font-bold text-slate-950">
+        <h2 className="text-sm font-bold text-foreground">
           Unbudgeted Spending
         </h2>
         <span className="text-xs font-semibold text-amber-700">
@@ -28,7 +28,7 @@ export function UnbudgetedSpendingCard({
             key={item.categoryId}
             className="flex items-center justify-between rounded-md bg-amber-50/70 px-3 py-2 text-sm"
           >
-            <span className="font-semibold text-slate-800">
+            <span className="font-semibold text-foreground">
               {item.categoryName}
             </span>
             <span className="font-bold text-amber-700">

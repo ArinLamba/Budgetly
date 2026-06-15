@@ -9,14 +9,14 @@ type Props = {
 export function SettingsContent({ user }: Props) {
   return (
     <div className="grid gap-4 lg:grid-cols-[220px_1fr]">
-      <aside className="rounded-lg border bg-slate-50/80 p-2">
+      <aside className="rounded-lg border bg-muted/40 p-2">
         {settingsNav.map((item) => (
           <button
             key={item}
             className={`block w-full rounded-md px-3 py-2 text-left text-sm font-medium ${
               item === "Profile"
-                ? "bg-violet-50 text-violet-700"
-                : "text-slate-600 hover:bg-background"
+                ? "bg-violet-50 text-indigo-700"
+                : "text-muted-foreground hover:bg-background"
             }`}
           >
             {item}
@@ -26,18 +26,18 @@ export function SettingsContent({ user }: Props) {
 
       <div className="space-y-4">
         <section className="rounded-lg border bg-background p-5 shadow-xs">
-          <h2 className="text-base font-bold text-slate-950">Profile</h2>
+          <h2 className="text-base font-bold text-foreground">Profile</h2>
           <div className="mt-5 flex items-center gap-4">
             <div className="size-16 rounded-full bg-[linear-gradient(135deg,#f9a8d4,#fdba74)]" />
             <div>
-              <p className="font-bold text-slate-950">
+              <p className="font-bold text-foreground">
                 {user.name ?? "Budgetly user"}
               </p>
               <p className="text-sm text-muted-foreground">{user.email}</p>
             </div>
           </div>
 
-          <h3 className="mt-8 text-sm font-bold text-slate-950">
+          <h3 className="mt-8 text-sm font-bold text-foreground">
             Preferences
           </h3>
           <div className="mt-4 grid max-w-xl gap-3">
@@ -50,10 +50,10 @@ export function SettingsContent({ user }: Props) {
                 key={label}
                 className="grid grid-cols-[1fr_180px] items-center gap-3"
               >
-                <span className="text-sm font-medium text-slate-700">
+                <span className="text-sm font-medium text-foreground">
                   {label}
                 </span>
-                <button className="rounded-md border bg-background px-3 py-2 text-left text-sm font-medium text-slate-700">
+                <button className="rounded-md border bg-background px-3 py-2 text-left text-sm font-medium text-foreground">
                   {value}
                 </button>
               </div>
@@ -65,7 +65,7 @@ export function SettingsContent({ user }: Props) {
           <h2 className="text-sm font-bold text-rose-600">Danger Zone</h2>
           <div className="mt-4 flex items-center justify-between gap-4">
             <div>
-              <p className="font-semibold text-slate-950">Clear All Data</p>
+              <p className="font-semibold text-foreground">Clear All Data</p>
               <p className="text-sm text-muted-foreground">
                 This action cannot be undone.
               </p>

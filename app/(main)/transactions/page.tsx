@@ -26,7 +26,7 @@ export default async function Page({
 
   return (
     <FeedWrapper>
-      <section className="space-y-5 rounded-lg border bg-background lg:p-6 p-4 shadow-sm">
+      <section className="space-y-2  px-2 pb-4 pt-0">
         <TransactionsView
           {...formOptions}
           initialFilters={{

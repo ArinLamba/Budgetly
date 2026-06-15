@@ -53,7 +53,7 @@ export function BudgetMobileList({
                   )}
                 </span>
                 <div className="min-w-0">
-                  <p className="truncate font-bold text-slate-950">
+                  <p className="truncate font-bold text-foreground">
                     {budget.categoryName}
                   </p>
                   <span
@@ -79,13 +79,13 @@ export function BudgetMobileList({
             <div className="mt-4 grid grid-cols-3 gap-3 text-xs">
               <div>
                 <p className="text-muted-foreground">Spent</p>
-                <p className="mt-1 font-bold text-slate-950">
+                <p className="mt-1 font-bold text-foreground">
                   {money.format(budget.spent)}
                 </p>
               </div>
               <div>
                 <p className="text-muted-foreground">Budget</p>
-                <p className="mt-1 font-bold text-slate-950">
+                <p className="mt-1 font-bold text-foreground">
                   {money.format(budget.amount)}
                 </p>
               </div>
@@ -97,16 +97,16 @@ export function BudgetMobileList({
               </div>
             </div>
 
-            <div className="mt-4 grid gap-2 rounded-md bg-slate-50 p-3 text-xs sm:grid-cols-2">
+            <div className="mt-4 grid gap-2 rounded-md bg-muted/40 p-3 text-xs sm:grid-cols-2">
               <p>
                 <span className="text-muted-foreground">Safe/day</span>{" "}
-                <span className="font-bold text-slate-950">
+                <span className="font-bold text-foreground">
                   {money.format(Math.max(0, insights.dailyAvailable))}
                 </span>
               </p>
               <p>
                 <span className="text-muted-foreground">Avg/day</span>{" "}
-                <span className="font-bold text-slate-950">
+                <span className="font-bold text-foreground">
                   {money.format(insights.dailyAverage)}
                 </span>
               </p>
@@ -128,14 +128,14 @@ export function BudgetMobileList({
               </p>
               <p>
                 <span className="text-muted-foreground">Last month</span>{" "}
-                <span className="font-bold text-slate-950">
+                <span className="font-bold text-foreground">
                   {money.format(insights.lastMonthSpent)}
                 </span>
               </p>
             </div>
 
             <div className="mt-4 flex items-center gap-3">
-              <div className="h-1.5 flex-1 rounded-full bg-slate-100">
+              <div className="h-1.5 flex-1 rounded-full bg-muted">
                 <div
                   className={`h-full rounded-full ${status.progressClassName}`}
                   style={{ width: `${Math.min(100, budget.progress)}%` }}

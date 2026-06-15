@@ -40,12 +40,12 @@ export default async function ReportsPage({
       <ReportsMetricGrid expense={totals.expense} income={totals.income} />
 
       <SectionCard className="mt-4">
-        <h2 className="mb-3 text-sm font-bold text-slate-950">Spending Trend</h2>
+        <h2 className="mb-3 text-sm font-bold text-foreground">Spending Trend</h2>
         <SpendingTrendChart values={trendPoints} />
       </SectionCard>
 
       <SectionCard className="mt-4">
-        <h2 className="mb-4 text-sm font-bold text-slate-950">Expenses by Category</h2>
+        <h2 className="mb-4 text-sm font-bold text-foreground">Expenses by Category</h2>
         <DonutChart categories={categorySummaries} />
       </SectionCard>
     </PageShell>

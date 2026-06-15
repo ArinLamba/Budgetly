@@ -3,6 +3,7 @@ import {
   accountsTable,
   budgetsTable,
   categoriesTable,
+  goalContributionsTable,
   goalsTable,
   transactionsTable,
 } from "@/db/schema";
@@ -11,6 +12,15 @@ import {
   ensureTransactionDefaults,
   getCurrentDbUser,
 } from "../transactions/_lib/data";
+import {
+  addDays,
+  addMonthsToMonthKey,
+  getDayOfMonth,
+  getDayOfWeek,
+  getDaysInMonth,
+  getMonthKey,
+  getMonthRangeKeys,
+} from "./date-utils";
 
 export type FinanceTransaction = Awaited<
   ReturnType<typeof getFinanceData>
@@ -20,37 +30,26 @@ export type FinanceBudgetRow = ReturnType<typeof getBudgetRows>[number];
 export type FinanceGoalRow = Awaited<ReturnType<typeof getFinanceData>>["goals"][number];
 
 export function getCurrentMonthKey(date = new Date()) {
-  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(
-    2,
-    "0"
-  )}-01`;
+  return getMonthKey(date);
 }
 
 export function getMonthRange(monthKey = getCurrentMonthKey()) {
-  const [year, month] = monthKey.split("-").map(Number);
-  const start = new Date(year, month - 1, 1);
-  const end = new Date(year, month, 1);
-
-  return { end, start };
+  return getMonthRangeKeys(monthKey);
 }
 
 export function addMonths(monthKey: string, offset: number) {
-  const [year, month] = monthKey.split("-").map(Number);
-  const date = new Date(year, month - 1 + offset, 1);
-
-  return getCurrentMonthKey(date);
+  return addMonthsToMonthKey(monthKey, offset);
 }
 
-export function isDateInRange(date: string, range: { end: Date; start: Date }) {
-  const value = new Date(`${date}T00:00:00`);
-  return value >= range.start && value < range.end;
+export function isDateInRange(date: string, range: { end: string; start: string }) {
+  return date >= range.start && date < range.end;
 }
 
 export async function getFinanceData(monthKey = getCurrentMonthKey()) {
   const user = await getCurrentDbUser();
   await ensureTransactionDefaults(user.id);
 
-  const [accounts, categories, transactions, budgets, goals] =
+  const [accounts, categories, transactions, budgets, goals, goalContributions] =
     await Promise.all([
       db.query.accountsTable.findMany({
         where: eq(accountsTable.userId, user.id),
@@ -73,6 +72,7 @@ export async function getFinanceData(monthKey = getCurrentMonthKey()) {
           icon: transactionsTable.icon,
           id: transactionsTable.id,
           paymentMethod: transactionsTable.paymentMethod,
+          title: transactionsTable.title,
           type: transactionsTable.type,
         })
         .from(transactionsTable)
@@ -101,13 +101,24 @@ export async function getFinanceData(monthKey = getCurrentMonthKey()) {
         where: eq(goalsTable.userId, user.id),
         orderBy: [desc(goalsTable.updatedAt)],
       }),
+      db.query.goalContributionsTable.findMany({
+        where: eq(goalContributionsTable.userId, user.id),
+        orderBy: [desc(goalContributionsTable.contributedAt)],
+      }),
     ]);
+
+  const goalsWithContributions = goals.map((goal) => ({
+    ...goal,
+    contributions: goalContributions.filter(
+      (contribution) => contribution.goalId === goal.id
+    ),
+  }));
 
   return {
     accounts,
     budgets,
     categories,
-    goals,
+    goals: goalsWithContributions,
     monthKey,
     transactions,
     user,
@@ -231,18 +242,12 @@ export function getUnbudgetedSpending(
 }
 
 export function getCalendarDays(transactions: FinanceTransaction[], date = new Date()) {
-  const firstDay = new Date(date.getFullYear(), date.getMonth(), 1);
-  const startOffset = (firstDay.getDay() + 6) % 7;
-  const gridStart = new Date(firstDay);
-  gridStart.setDate(firstDay.getDate() - startOffset);
+  const monthKey = getCurrentMonthKey(date);
+  const startOffset = (getDayOfWeek(monthKey) + 6) % 7;
+  const gridStart = addDays(monthKey, -startOffset);
 
   return Array.from({ length: 35 }, (_, index) => {
-    const day = new Date(gridStart);
-    day.setDate(gridStart.getDate() + index);
-    const key = `${day.getFullYear()}-${String(day.getMonth() + 1).padStart(
-      2,
-      "0"
-    )}-${String(day.getDate()).padStart(2, "0")}`;
+    const key = addDays(gridStart, index);
     const amount = transactions
       .filter(
         (transaction) =>
@@ -253,8 +258,8 @@ export function getCalendarDays(transactions: FinanceTransaction[], date = new D
     return {
       amount,
       date: key,
-      day: day.getDate(),
-      inMonth: day.getMonth() === date.getMonth(),
+      day: getDayOfMonth(key),
+      inMonth: key.startsWith(monthKey.slice(0, 7)),
     };
   });
 }
@@ -264,16 +269,9 @@ export function getTrendPoints(
   monthKey = getCurrentMonthKey()
 ) {
   const range = getMonthRange(monthKey);
-  const daysInMonth = new Date(
-    range.start.getFullYear(),
-    range.start.getMonth() + 1,
-    0
-  ).getDate();
+  const daysInMonth = getDaysInMonth(monthKey);
   const points = Array.from({ length: daysInMonth }, (_, index) => {
-    const day = index + 1;
-    const key = `${range.start.getFullYear()}-${String(
-      range.start.getMonth() + 1
-    ).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+    const key = addDays(range.start, index);
     const amount = transactions
       .filter(
         (transaction) =>

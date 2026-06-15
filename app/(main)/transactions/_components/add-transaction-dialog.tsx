@@ -28,6 +28,7 @@ import {
 } from "react";
 import { useRouter } from "next/navigation";
 import { createTransaction, updateTransaction } from "../_lib/actions";
+import { getDateKey } from "../../_lib/date-utils";
 import { mapSuggestionIconToTransactionIcon } from "../_lib/appearance";
 import { type TransactionSuggestion } from "../_lib/suggestions";
 import type { TransactionFormOptions } from "../_lib/data";
@@ -76,9 +77,10 @@ export function AddTransactionDialog({
   const [state, setState] = useState(initialState);
   const [pending, startTransition] = useTransition();
 
-  const today = new Date().toISOString().slice(0, 10);
+  const today = getDateKey();
   const defaultAccountId = accounts[0]?.id ? String(accounts[0].id) : "";
   const initialDescription = transaction?.description ?? "";
+  const initialTitle = transaction?.title ?? "";
   const initialType: TransactionType =
     transaction?.type === "income" || transaction?.type === "expense"
       ? transaction.type
@@ -99,6 +101,7 @@ export function AddTransactionDialog({
   const initialColor = transaction?.color ?? "#6366f1";
 
   const [description, setDescription] = useState(initialDescription);
+  const [title, setTitle] = useState(initialTitle);
   const [type, setType] = useState<TransactionType>(initialType);
   const [amount, setAmount] = useState(initialAmount);
   const [transactionDate, setTransactionDate] = useState(initialDate);
@@ -114,6 +117,7 @@ export function AddTransactionDialog({
   const [color, setColor] = useState(initialColor);
 
   function resetFormState() {
+    setTitle(initialTitle);
     setDescription(initialDescription);
     setType(initialType);
     setAmount(initialAmount);
@@ -145,13 +149,19 @@ export function AddTransactionDialog({
       )
     : accounts;
 
-  const visibleCategories = categories
-    .filter((category) => category.type === type)
-    .filter((category) =>
-      categoryName.trim()
-        ? category.name.toLowerCase().includes(categoryName.trim().toLowerCase())
-        : true
-    );
+  const visibleCategories = categories.filter((category) =>
+    categoryName.trim()
+      ? category.name.toLowerCase().includes(categoryName.trim().toLowerCase())
+      : true
+  );
+  const visibleCategoryGroups = transactionTypes
+    .map((item) => ({
+      ...item,
+      categories: visibleCategories.filter(
+        (category) => category.type === item.value
+      ),
+    }))
+    .filter((group) => group.categories.length > 0);
 
   function applySuggestion(suggestion: TransactionSuggestion) {
     setDescription(suggestion.description);
@@ -178,6 +188,7 @@ export function AddTransactionDialog({
   function selectCategory(category: (typeof categories)[number]) {
     setCategoryId(String(category.id));
     setCategoryName(category.name);
+    setType(category.type);
     setIcon(category.icon ?? icon);
     setColor(category.color);
     setCategorySuggestionsOpen(false);
@@ -187,7 +198,6 @@ export function AddTransactionDialog({
   function handleCategoryNameChange(value: string) {
     const matchingCategory = categories.find(
       (category) =>
-        category.type === type &&
         category.name.toLowerCase() === value.trim().toLowerCase()
     );
 
@@ -197,6 +207,7 @@ export function AddTransactionDialog({
 
     if (matchingCategory) {
       setCategoryId(String(matchingCategory.id));
+      setType(matchingCategory.type);
       setIcon(matchingCategory.icon ?? icon);
       setColor(matchingCategory.color);
       return;
@@ -243,7 +254,10 @@ export function AddTransactionDialog({
         {trigger ?? (
           <Button variant="main" className="h-9 px-4 shadow-sm">
             <IconPlus className="size-4" />
-            <span className="text-xs">Add Transaction</span>
+            <span className="text-xs flex gap-1">
+              <p>Add</p>
+              <span className="hidden lg:block"> Transaction</span>
+            </span>
           </Button>
         )}
       </DialogTrigger>
@@ -262,8 +276,19 @@ export function AddTransactionDialog({
         <form onSubmit={onSubmit} className="space-y-3">
           <FieldGroup>
             <Field>
-              <FieldLabel>Title</FieldLabel>
-              <div className="flex items-center rounded-lg border border-input bg-background pr-2 focus-within:border-ring focus-within:ring-3 focus-within:ring-ring/50">
+              <FieldLabel htmlFor="title">Title</FieldLabel>
+              <Input
+                id="title"
+                name="title"
+                value={title}
+                onChange={(event) => setTitle(event.target.value)}
+                placeholder="Transaction"
+              />
+            </Field>
+
+            <Field>
+              <FieldLabel>Description</FieldLabel>
+              <div className="flex items-center rounded-lg border border-input bg-background pr-2 focus-within:border-indigo-700">
                 <TransactionAppearancePicker
                   color={color}
                   icon={icon}
@@ -285,15 +310,15 @@ export function AddTransactionDialog({
               <Field>
                 <FieldLabel>Type</FieldLabel>
                 <input name="type" type="hidden" value={type} />
-                <div className="grid grid-cols-2 rounded-lg border bg-slate-50 p-1">
+                <div className="grid grid-cols-2 rounded-lg border bg-muted/40 p-1">
                   {transactionTypes.map((item) => (
                     <button
                       key={item.value}
                       type="button"
                       className={`rounded-md px-3 py-2 text-xs font-bold transition-colors ${
                         type === item.value
-                          ? "bg-white text-slate-950 shadow-sm"
-                          : "text-muted-foreground hover:text-slate-900"
+                          ? "bg-background text-foreground shadow-sm"
+                          : "text-muted-foreground hover:text-foreground"
                       }`}
                       onClick={() => {
                         const selectedCategory = categories.find(
@@ -349,15 +374,15 @@ export function AddTransactionDialog({
               <Field>
                 <FieldLabel>Payment</FieldLabel>
                 <input name="paymentMethod" type="hidden" value={paymentMethod} />
-                <div className="grid grid-cols-3 gap-1 rounded-lg border bg-slate-50 p-1">
+                <div className="grid grid-cols-3 gap-1 rounded-lg border bg-muted/40 p-1">
                   {paymentMethods.map((method) => (
                     <button
                       key={method.value}
                       type="button"
                       className={`rounded-md px-2 py-2 text-xs font-bold transition-colors ${
                         paymentMethod === method.value
-                          ? "bg-white text-slate-950 shadow-sm"
-                          : "text-muted-foreground hover:text-slate-900"
+                          ? "bg-background text-foreground shadow-sm"
+                          : "text-muted-foreground hover:text-foreground"
                       }`}
                       onClick={() => setPaymentMethod(method.value)}
                     >
@@ -382,7 +407,7 @@ export function AddTransactionDialog({
                   onOpenChange={setAccountSuggestionsOpen}
                 >
                   <PopoverAnchor asChild>
-                    <div className="flex h-10 items-center rounded-lg border border-input bg-background px-3 focus-within:border-ring focus-within:ring-3 focus-within:ring-ring/50">
+                    <div className="flex h-10 items-center rounded-lg border border-input bg-background px-3 focus-within:border-indigo-700">
                       <Input
                         id="accountName"
                         value={accountName}
@@ -417,7 +442,7 @@ export function AddTransactionDialog({
                           <button
                             key={account.id}
                             type="button"
-                            className="flex w-full items-center justify-between rounded-md px-3 py-2 text-left text-sm font-semibold hover:bg-slate-50"
+                            className="flex w-full items-center justify-between rounded-md px-3 py-2 text-left text-sm font-semibold hover:bg-muted/50"
                             onMouseDown={(event) => event.preventDefault()}
                             onClick={() => selectAccount(account)}
                           >
@@ -446,7 +471,7 @@ export function AddTransactionDialog({
                   onOpenChange={setCategorySuggestionsOpen}
                 >
                   <PopoverAnchor asChild>
-                    <div className="flex h-10 items-center rounded-lg border border-input bg-background px-3 focus-within:border-ring focus-within:ring-3 focus-within:ring-ring/50">
+                    <div className="flex h-10 items-center rounded-lg border border-input bg-background px-3 focus-within:border-indigo-700">
                       <Input
                         id="categoryName"
                         value={categoryName}
@@ -464,43 +489,58 @@ export function AddTransactionDialog({
                   </PopoverAnchor>
                   <PopoverContent
                     align="start"
-                    className="max-h-72 w-(--radix-popover-trigger-width) overflow-y-auto p-2"
+                    className="max-h-[min(18rem,calc(100dvh-8rem))] w-(--radix-popover-trigger-width) touch-pan-y overscroll-contain overflow-y-auto "
                     sideOffset={6}
                     onOpenAutoFocus={(event) => event.preventDefault()}
+                    onTouchMoveCapture={(event) => event.stopPropagation()}
+                    onWheelCapture={(event) => event.stopPropagation()}
                   >
                     {visibleCategories.length === 0 ? (
                       <div className="rounded-md px-3 py-3 text-xs text-muted-foreground">
                         Press save to create &quot;{categoryName || "this category"}&quot;.
                       </div>
                     ) : (
-                      <div className="max-h-64 overflow-y-auto rounded-md border">
-                        <div className="divide-y divide-border">
-                        {visibleCategories.map((category) => (
-                          <button
-                            key={category.id}
-                            type="button"
-                            className="flex w-full items-center gap-3 bg-background px-3 py-2 text-left hover:bg-slate-50"
-                            onMouseDown={(event) => event.preventDefault()}
-                            onClick={() => selectCategory(category)}
-                          >
-                            <span
-                              className="flex size-8 shrink-0 items-center justify-center rounded-md"
-                              style={{
-                                backgroundColor: `${category.color}20`,
-                                color: category.color,
-                              }}
-                            >
-                              {renderTransactionIcon(
-                                category.icon ?? "Wallet",
-                                "size-4"
-                              )}
-                            </span>
-                            <span className="text-sm font-semibold text-slate-900">
-                              {category.name}
-                            </span>
-                          </button>
+                      <div className="space-y-2">
+                        {visibleCategoryGroups.map((group) => (
+                          <div key={group.value} className="rounded-md border bg-background">
+                            <div className="flex items-center justify-between border-b bg-muted/40 px-3 py-2">
+                              <p className="text-[11px] font-bold uppercase tracking-wide text-muted-foreground">
+                                {group.label}
+                              </p>
+                              <span className="text-[11px] font-medium text-muted-foreground">
+                                {group.categories.length}
+                              </span>
+                            </div>
+                            <div className="divide-y divide-border">
+                              {group.categories.map((category) => (
+                                <button
+                                  key={category.id}
+                                  type="button"
+                                  className="flex w-full items-center gap-3 bg-background px-3 py-2.5 text-left transition-colors hover:bg-muted/50"
+                                  onMouseDown={(event) => event.preventDefault()}
+                                  onClick={() => selectCategory(category)}
+                                >
+                                  <span
+                                    className="flex size-7 shrink-0 items-center justify-center rounded-md"
+                                    style={{
+                                      backgroundColor: `${category.color}18`,
+                                      color: category.color,
+                                    }}
+                                  >
+                                    {renderTransactionIcon(
+                                      category.icon ?? "Wallet",
+                                      "size-3.5"
+                                    )}
+                                  </span>
+                                  <span className="min-w-0 flex-1 truncate text-sm font-semibold text-foreground">
+                                    {category.name}
+                                  </span>
+                                  
+                                </button>
+                              ))}
+                            </div>
+                          </div>
                         ))}
-                        </div>
                       </div>
                     )}
                   </PopoverContent>

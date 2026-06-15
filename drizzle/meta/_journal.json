@@ -15,6 +15,27 @@
       "when": 1781000433750,
       "tag": "0001_add_transaction_appearance",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1781255922661,
+      "tag": "0002_uneven_blink",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1781545061991,
+      "tag": "0003_bizarre_wrecker",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1781545454101,
+      "tag": "0004_lonely_gauntlet",
+      "breakpoints": true
     }
   ]
 }

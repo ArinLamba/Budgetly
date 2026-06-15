@@ -3,6 +3,7 @@ import { Geist } from "next/font/google";
 import "./globals.css";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ClerkProvider } from "@clerk/nextjs";
+import { ThemeProvider } from "@/components/theme-provider";
 
 const geistSans = Geist({
   subsets: ["latin"],
@@ -23,12 +24,20 @@ export default function RootLayout({
     <html
       lang="en"
       className={`${geistSans.className} h-full antialiased`}
+      suppressHydrationWarning
     >
-      <body className="min-h-full bg-gray-50">
+      <body className="min-h-full bg-background text-foreground">
         <ClerkProvider>
-          <TooltipProvider>  
-            {children}
-          </TooltipProvider>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+          >
+            <TooltipProvider>  
+              {children}
+            </TooltipProvider>
+          </ThemeProvider>
         </ClerkProvider>
       </body>
     </html>

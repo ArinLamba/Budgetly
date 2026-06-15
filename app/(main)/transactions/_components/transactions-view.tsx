@@ -14,6 +14,13 @@ import type {
 import { TransactionsHeader } from "./transactions-header";
 import { TransactionsSummary } from "./transactions-summary";
 import { TransactionsTable } from "./transactions-table";
+import {
+  addDays,
+  addMonthsToMonthKey,
+  getDateKey,
+  getDayOfWeek,
+  getMonthKey,
+} from "../../_lib/date-utils";
 
 type Props = TransactionFormOptions & {
   initialFilters?: Partial<TransactionFilters>;
@@ -29,8 +36,7 @@ const initialFilters: TransactionFilters = {
 };
 
 function getDateRange(period: TransactionSummaryPeriod) {
-  const now = new Date();
-  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const today = getDateKey();
 
   if (period === "all") {
     return null;
@@ -38,33 +44,36 @@ function getDateRange(period: TransactionSummaryPeriod) {
 
   if (period === "today") {
     return {
-      end: new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1),
+      end: addDays(today, 1),
       start: today,
     };
   }
 
   if (period === "week") {
-    const day = today.getDay();
+    const day = getDayOfWeek(today);
     const daysSinceMonday = day === 0 ? 6 : day - 1;
-    const start = new Date(today);
-    start.setDate(today.getDate() - daysSinceMonday);
+    const start = addDays(today, -daysSinceMonday);
 
     return {
-      end: new Date(start.getFullYear(), start.getMonth(), start.getDate() + 7),
+      end: addDays(start, 7),
       start,
     };
   }
 
   if (period === "year") {
+    const year = today.slice(0, 4);
+
     return {
-      end: new Date(today.getFullYear() + 1, 0, 1),
-      start: new Date(today.getFullYear(), 0, 1),
+      end: `${Number(year) + 1}-01-01`,
+      start: `${year}-01-01`,
     };
   }
 
+  const monthKey = getMonthKey();
+
   return {
-    end: new Date(today.getFullYear(), today.getMonth() + 1, 1),
-    start: new Date(today.getFullYear(), today.getMonth(), 1),
+    end: addMonthsToMonthKey(monthKey, 1),
+    start: monthKey,
   };
 }
 
@@ -75,8 +84,7 @@ function isInPeriod(date: string, period: TransactionSummaryPeriod) {
     return true;
   }
 
-  const transactionDate = new Date(`${date}T00:00:00`);
-  return transactionDate >= range.start && transactionDate < range.end;
+  return date >= range.start && date < range.end;
 }
 
 function compareBySort(sort: TransactionSort) {
@@ -90,11 +98,10 @@ function compareBySort(sort: TransactionSort) {
     }
 
     if (sort === "title-asc") {
-      return left.description.localeCompare(right.description);
+      return left.title.localeCompare(right.title);
     }
 
-    const dateCompare =
-      new Date(left.date).getTime() - new Date(right.date).getTime();
+    const dateCompare = left.date.localeCompare(right.date);
 
     if (dateCompare !== 0) {
       return sort === "date-asc" ? dateCompare : -dateCompare;
@@ -133,6 +140,7 @@ export function TransactionsView({
           String(transaction.categoryId) === filters.categoryId;
         const matchesQuery =
           !query ||
+          transaction.title.toLowerCase().includes(query) ||
           transaction.description.toLowerCase().includes(query) ||
           transaction.category?.toLowerCase().includes(query) ||
           transaction.account.toLowerCase().includes(query) ||

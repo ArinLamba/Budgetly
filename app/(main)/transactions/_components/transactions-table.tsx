@@ -15,6 +15,8 @@ import type { TransactionFormOptions, TransactionRow } from "../_lib/data";
 import { renderTransactionIcon } from "../_lib/appearance";
 import { AddTransactionDialog } from "./add-transaction-dialog";
 import { DeleteTransactionButton } from "./delete-transaction-button";
+import { addDays, formatDateKey, getDateKey } from "../../_lib/date-utils";
+import { CardWrapper } from "@/components/card-wrapper";
 
 type Props = TransactionFormOptions & {
   transactions: TransactionRow[];
@@ -40,27 +42,23 @@ const currency = new Intl.NumberFormat("en-IN", {
   maximumFractionDigits: 0,
 });
 
-const displayDate = new Intl.DateTimeFormat("en-IN", {
-  day: "numeric",
-  month: "short",
-  year: "numeric",
-});
-
 function formatDate(date: string) {
-  return displayDate.format(new Date(`${date}T00:00:00`));
+  return formatDateKey(date, {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  });
 }
 
 function getGroupLabel(date: string) {
-  const today = new Date();
-  const transactionDate = new Date(`${date}T00:00:00`);
-  const yesterday = new Date(today);
-  yesterday.setDate(today.getDate() - 1);
+  const today = getDateKey();
+  const yesterday = addDays(today, -1);
 
-  if (transactionDate.toDateString() === today.toDateString()) {
+  if (date === today) {
     return "Today";
   }
 
-  if (transactionDate.toDateString() === yesterday.toDateString()) {
+  if (date === yesterday) {
     return "Yesterday";
   }
 
@@ -85,8 +83,8 @@ function groupTransactions(transactions: TransactionRow[]) {
 export function TransactionsTable({ accounts, categories, transactions }: Props) {
   if (transactions.length === 0) {
     return (
-      <div className="rounded-lg border bg-background p-8 text-center">
-        <p className="font-medium text-slate-900">No transactions yet</p>
+      <div className="rounded-lg border bg-background p-8 text-center shadow-xs">
+        <p className="font-medium text-foreground">No transactions yet</p>
         <p className="mt-1 text-sm text-muted-foreground">
           Use Add Transaction to record your first income or expense.
         </p>
@@ -101,10 +99,10 @@ export function TransactionsTable({ accounts, categories, transactions }: Props)
     <div className="space-y-4 md:hidden">
       {groups.map((group) => (
         <div key={group.label} className="space-y-1">
-          <p className="px-1 pb-1 text-xs font-bold text-slate-700">
+          <p className="px-1 pb-1 text-xs font-bold text-indigo-700">
             {group.label}
           </p>
-          <div className="divide-y rounded-lg border bg-background">
+          <div className="divide-y rounded-lg border bg-card shadow-xs">
             {group.transactions.map((transaction) => {
               const signedAmount =
                 transaction.type === "income"
@@ -114,7 +112,7 @@ export function TransactionsTable({ accounts, categories, transactions }: Props)
               return (
                 <div
                   key={transaction.id}
-                  className="flex items-center gap-3 px-3 py-3"
+                  className="flex items-center gap-3 px-3 py-3 transition-colors active:bg-muted/50"
                 >
                   <span
                     className="flex size-10 shrink-0 items-center justify-center rounded-md"
@@ -127,11 +125,12 @@ export function TransactionsTable({ accounts, categories, transactions }: Props)
                   </span>
 
                   <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm font-bold text-slate-950">
-                      {transaction.description}
+                    <p className="truncate text-sm font-bold text-foreground">
+                      {transaction.title}
                     </p>
                     <p className="truncate text-xs font-medium text-muted-foreground">
-                      {transaction.category ?? "Uncategorized"} ·{" "}
+                      {transaction.description} -{" "}
+                      {transaction.category ?? "Uncategorized"} -{" "}
                       {paymentMethodLabels[transaction.paymentMethod]}
                     </p>
                   </div>
@@ -143,7 +142,7 @@ export function TransactionsTable({ accounts, categories, transactions }: Props)
                           "text-sm font-bold",
                           transaction.type === "income"
                             ? "text-emerald-600"
-                            : "text-slate-950"
+                            : "text-foreground"
                         )}
                       >
                         {currency.format(signedAmount)}
@@ -159,7 +158,7 @@ export function TransactionsTable({ accounts, categories, transactions }: Props)
                       transaction={transaction}
                       trigger={
                         <Button variant="ghost" size="icon-sm">
-                          <IconPencil className="size-4" />
+                          <IconPencil className="size-4 text-muted-foreground" />
                           <span className="sr-only">Edit transaction</span>
                         </Button>
                       }
@@ -174,26 +173,26 @@ export function TransactionsTable({ accounts, categories, transactions }: Props)
       ))}
     </div>
 
-    <div className="hidden overflow-hidden rounded-lg border bg-background md:block">
+    <CardWrapper className="hidden overflow-hidden md:block p-0">
       <Table>
         <TableHeader>
           <TableRow className="hover:bg-transparent">
-            <TableHead className="w-[140px] px-4 text-xs text-slate-500">
-              Date
+            <TableHead className="w-[180px] px-4 text-xs font-semibold text-muted-foreground">
+              Title
             </TableHead>
-            <TableHead className="min-w-[180px] text-xs text-slate-500">
+            <TableHead className="min-w-[180px] text-xs font-semibold text-muted-foreground">
               Description
             </TableHead>
-            <TableHead className="min-w-[150px] text-xs text-slate-500">
+            <TableHead className="min-w-[150px] text-xs font-semibold text-muted-foreground">
               Category
             </TableHead>
-            <TableHead className="w-[120px] text-xs text-slate-500">
+            <TableHead className="w-[120px] text-xs font-semibold text-muted-foreground">
               Type
             </TableHead>
-            <TableHead className="w-[140px] text-xs text-slate-500">
+            <TableHead className="w-[140px] text-xs font-semibold text-muted-foreground">
               Amount
             </TableHead>
-            <TableHead className="min-w-[150px] text-xs text-slate-500">
+            <TableHead className="min-w-[150px] text-xs font-semibold text-muted-foreground">
               Payment Method
             </TableHead>
             <TableHead className="w-[92px] pr-4">
@@ -207,7 +206,7 @@ export function TransactionsTable({ accounts, categories, transactions }: Props)
               <TableRow className="border-b-0 hover:bg-transparent">
                 <TableCell
                   colSpan={7}
-                  className="px-4 pb-2 pt-4 text-xs font-bold text-slate-700"
+                  className="px-4 pb-2 pt-4 text-xs font-bold text-indigo-700"
                 >
                   {group.label}
                 </TableCell>
@@ -221,12 +220,12 @@ export function TransactionsTable({ accounts, categories, transactions }: Props)
                 return (
                   <TableRow
                     key={transaction.id}
-                    className="h-14 bg-background hover:bg-slate-50"
+                    className="h-14 bg-backgrond hover:bg-muted/50"
                   >
-                    <TableCell className="px-4 text-xs font-medium text-slate-700">
-                      {formatDate(transaction.date)}
+                    <TableCell className="px-4 text-sm font-medium text-foreground">
+                      {transaction.title}
                     </TableCell>
-                    <TableCell className="font-semibold text-slate-900">
+                    <TableCell className="font-semibold text-foreground">
                       <div className="flex items-center gap-3">
                         <span
                           className="flex size-8 shrink-0 items-center justify-center rounded-md"
@@ -258,8 +257,8 @@ export function TransactionsTable({ accounts, categories, transactions }: Props)
                         className={cn(
                           "rounded-md capitalize",
                           transaction.type === "income"
-                            ? "bg-emerald-50 text-slate-700"
-                            : "bg-slate-100 text-slate-700"
+                            ? "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400"
+                            : "bg-muted text-muted-foreground"
                         )}
                       >
                         {transaction.type}
@@ -270,12 +269,12 @@ export function TransactionsTable({ accounts, categories, transactions }: Props)
                         "font-bold",
                         transaction.type === "income"
                           ? "text-emerald-600"
-                          : "text-slate-900"
+                          : "text-foreground"
                       )}
                     >
                       {currency.format(signedAmount)}
                     </TableCell>
-                    <TableCell className="font-medium text-slate-900">
+                    <TableCell className="font-medium text-foreground">
                       {paymentMethodLabels[transaction.paymentMethod]}
                     </TableCell>
                     <TableCell className="pr-4">
@@ -305,7 +304,7 @@ export function TransactionsTable({ accounts, categories, transactions }: Props)
           ))}
         </TableBody>
       </Table>
-    </div>
+    </CardWrapper>
     </>
   );
 }

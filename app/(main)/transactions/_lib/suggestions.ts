@@ -19,6 +19,23 @@ export type TransactionSuggestionGroup = {
   suggestions: TransactionSuggestion[];
 };
 
+const suggestionColors = [
+  "#06b6d4",
+  "#f97316",
+  "#8b5cf6",
+  "#3b82f6",
+  "#6366f1",
+  "#10b981",
+  "#f59e0b",
+  "#34d399",
+  "#ec4899",
+  "#ef4444",
+  "#14b8a6",
+  "#a855f7",
+  "#84cc16",
+  "#64748b",
+];
+
 export const transactionSuggestionGroups: TransactionSuggestionGroup[] = [
   {
     label: "Food & Dining",
@@ -152,7 +169,7 @@ function makeSuggestion(
   paymentMethod: PaymentMethod,
   icon: TransactionSuggestionIcon,
   type: TransactionType = "expense",
-  color = getDefaultSuggestionColor(categoryName, type)
+  color = getSuggestionColor(id)
 ): TransactionSuggestion {
   return {
     amount,
@@ -167,32 +184,11 @@ function makeSuggestion(
   };
 }
 
-function getDefaultSuggestionColor(categoryName: string, type: TransactionType) {
-  if (type === "income") {
-    return "#10b981";
-  }
+function getSuggestionColor(id: string) {
+  const colorIndex = Array.from(id).reduce(
+    (sum, character) => sum + character.charCodeAt(0),
+    0
+  );
 
-  const colors: Record<string, string> = {
-    "Bills & Utilities": "#f59e0b",
-    Donations: "#ec4899",
-    Education: "#0ea5e9",
-    Entertainment: "#a855f7",
-    Fitness: "#22c55e",
-    "Food & Dining": "#f97316",
-    Healthcare: "#ef4444",
-    Home: "#14b8a6",
-    Insurance: "#6366f1",
-    Investments: "#10b981",
-    "Loan & EMI": "#64748b",
-    "Personal Care": "#ec4899",
-    Pets: "#84cc16",
-    Savings: "#10b981",
-    Shopping: "#8b5cf6",
-    Subscriptions: "#a855f7",
-    Transport: "#3b82f6",
-    Travel: "#06b6d4",
-    Work: "#475569",
-  };
-
-  return colors[categoryName] ?? "#6366f1";
+  return suggestionColors[colorIndex % suggestionColors.length];
 }

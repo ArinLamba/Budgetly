@@ -40,7 +40,7 @@ export function DonutChart({
         style={{ background: `conic-gradient(${gradient})` }}
       >
         <div className="absolute inset-8 flex flex-col items-center justify-center rounded-full bg-background">
-          <p className="text-lg font-bold text-slate-950">
+          <p className="text-lg font-bold text-foreground">
             {money.format(total)}
           </p>
           <p className="text-xs text-muted-foreground">Total</p>
@@ -55,14 +55,14 @@ export function DonutChart({
               key={category.id}
               className="grid grid-cols-[1fr_auto_auto] items-center gap-3 text-xs"
             >
-              <span className="flex items-center gap-2 font-medium text-slate-700">
+              <span className="flex items-center gap-2 font-medium text-foreground">
                 <span
                   className="size-2 rounded-full"
                   style={{ backgroundColor: category.color || palette[index] }}
                 />
                 {category.name}
               </span>
-              <span className="font-semibold text-slate-950">
+              <span className="font-semibold text-foreground">
                 {money.format(category.amount)}
               </span>
               <span className="text-muted-foreground">{category.percent}%</span>

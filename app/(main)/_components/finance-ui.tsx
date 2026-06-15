@@ -1,5 +1,4 @@
 export { BudgetSummary } from "./budget-summary";
-export { CategoryProgressList } from "./category-progress-list";
 export { DonutChart } from "./donut-chart";
 export { EmptyState } from "./empty-state";
 export { money, formatDate } from "./format";

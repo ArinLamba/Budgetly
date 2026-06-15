@@ -6,7 +6,7 @@ export function MiniCalendar({
   days: { amount: number; day: number; inMonth: boolean }[];
 }) {
   function colorForAmount(amount: number) {
-    if (amount === 0) return "bg-slate-100";
+    if (amount === 0) return "bg-muted";
     if (amount <= 500) return "bg-emerald-100";
     if (amount <= 1500) return "bg-yellow-200";
     if (amount <= 3000) return "bg-orange-300";
@@ -15,7 +15,7 @@ export function MiniCalendar({
 
   return (
     <div>
-      <div className="mb-3 grid grid-cols-7 text-center text-xs font-semibold text-slate-700">
+      <div className="mb-3 grid grid-cols-7 text-center text-xs font-semibold text-foreground">
         {["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map((day) => (
           <span key={day}>{day}</span>
         ))}
@@ -26,7 +26,7 @@ export function MiniCalendar({
             key={`${item.day}-${index}`}
             className={cn(
               "flex h-8 items-center justify-center rounded-md text-xs font-semibold",
-              item.inMonth ? "text-slate-700" : "text-slate-400",
+              item.inMonth ? "text-foreground" : "text-muted-foreground/60",
               colorForAmount(item.amount)
             )}
           >
@@ -40,7 +40,7 @@ export function MiniCalendar({
 
 export function SpendingCalendarLegend() {
   const items = [
-    ["bg-slate-100", "Rs 0"],
+    ["bg-muted", "Rs 0"],
     ["bg-emerald-100", "Rs 1 - Rs 500"],
     ["bg-yellow-200", "Rs 501 - Rs 1,500"],
     ["bg-orange-300", "Rs 1,501 - Rs 3,000"],

@@ -62,7 +62,7 @@ export function BudgetDesktopTable({
                     )}
                   </span>
                   <div className="min-w-0">
-                    <p className="truncate font-bold text-slate-950">
+                    <p className="truncate font-bold text-foreground">
                       {budget.categoryName}
                     </p>
                     <p className="truncate text-xs text-muted-foreground">
@@ -76,13 +76,13 @@ export function BudgetDesktopTable({
                     </p>
                   </div>
                 </div>
-                <span className="font-semibold text-slate-700">
+                <span className="font-semibold text-foreground">
                   {money.format(budget.spent)}
                 </span>
-                <span className="font-semibold text-slate-700">
+                <span className="font-semibold text-foreground">
                   {money.format(budget.amount)}
                 </span>
-                <span className="font-semibold text-slate-700">
+                <span className="font-semibold text-foreground">
                   {money.format(budget.remaining)}
                 </span>
                 <span
@@ -92,7 +92,7 @@ export function BudgetDesktopTable({
                   {status.label}
                 </span>
                 <div className="flex items-center gap-3">
-                  <div className="h-1.5 flex-1 rounded-full bg-slate-100">
+                  <div className="h-1.5 flex-1 rounded-full bg-muted">
                     <div
                       className={`h-full rounded-full ${status.progressClassName}`}
                       style={{ width: `${Math.min(100, budget.progress)}%` }}

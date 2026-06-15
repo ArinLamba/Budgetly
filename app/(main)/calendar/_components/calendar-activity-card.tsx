@@ -17,8 +17,8 @@ export function CalendarActivityCard({
   return (
     <SectionCard className="mt-4 max-w-3xl">
       <div className="mb-4 flex items-center justify-between">
-        <h2 className="text-sm font-bold text-slate-950">{title}</h2>
-        <span className="text-xs font-semibold text-slate-700">
+        <h2 className="text-sm font-bold text-foreground">{title}</h2>
+        <span className="text-xs font-semibold text-foreground">
           Total {money.format(total)}
         </span>
       </div>

@@ -11,6 +11,7 @@ import {
   getFinanceData,
   getMonthTransactions,
 } from "../_lib/finance-data";
+import { getDateFromKey } from "../_lib/date-utils";
 import { CalendarActivityCard } from "./_components/calendar-activity-card";
 import { getCalendarSummary } from "./_lib/calendar-summary";
 
@@ -23,7 +24,7 @@ export default async function CalendarPage({
   const monthTransactions = getMonthTransactions(data.transactions, data.monthKey);
   const calendarDays = getCalendarDays(
     monthTransactions,
-    new Date(`${data.monthKey}T00:00:00`)
+    getDateFromKey(data.monthKey)
   );
   const summary = getCalendarSummary(monthTransactions);
 

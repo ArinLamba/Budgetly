@@ -190,7 +190,7 @@ export function AddBudgetDialog({
           <FieldGroup>
             <Field>
               <FieldLabel htmlFor="categoryName">Category</FieldLabel>
-              <div className="flex items-center rounded-lg border border-input bg-background pr-2 focus-within:border-ring focus-within:ring-3 focus-within:ring-ring/50">
+              <div className="flex items-center rounded-lg border border-input bg-background pr-2 focus-within:border-indigo-700">
                 <TransactionAppearancePicker
                   color={newCategoryColor}
                   icon={newCategoryIcon}
@@ -240,7 +240,7 @@ export function AddBudgetDialog({
                             <button
                               key={category.id}
                               type="button"
-                              className="flex w-full items-center gap-3 bg-background px-3 py-2 text-left hover:bg-slate-50"
+                              className="flex w-full items-center gap-3 bg-background px-3 py-2 text-left hover:bg-muted/40"
                               onMouseDown={(event) => event.preventDefault()}
                               onClick={() => selectCategory(category)}
                             >
@@ -256,7 +256,7 @@ export function AddBudgetDialog({
                                   "size-4"
                                 )}
                               </span>
-                              <span className="text-sm font-semibold text-slate-900">
+                              <span className="text-sm font-semibold text-foreground">
                                 {category.name}
                               </span>
                               {category.suggestedAmount &&

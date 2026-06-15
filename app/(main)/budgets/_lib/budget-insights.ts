@@ -2,23 +2,24 @@ import type {
   FinanceBudgetRow,
   FinanceTransaction,
 } from "../../_lib/finance-data";
+import {
+  getDateKey,
+  getDayOfMonth,
+  getDaysInMonth,
+  getMonthKey,
+} from "../../_lib/date-utils";
 
 export function getBudgetMonthContext(monthKey: string, now = new Date()) {
-  const selectedMonthDate = new Date(`${monthKey}T00:00:00`);
-  const daysInMonth = new Date(
-    selectedMonthDate.getFullYear(),
-    selectedMonthDate.getMonth() + 1,
-    0
-  ).getDate();
-  const isCurrentMonth =
-    selectedMonthDate.getFullYear() === now.getFullYear() &&
-    selectedMonthDate.getMonth() === now.getMonth();
+  const daysInMonth = getDaysInMonth(monthKey);
+  const currentMonth = getMonthKey(now);
+  const currentDay = getDayOfMonth(getDateKey(now));
+  const isCurrentMonth = monthKey === currentMonth;
 
   return {
     daysInMonth,
-    elapsedDays: isCurrentMonth ? now.getDate() : daysInMonth,
+    elapsedDays: isCurrentMonth ? currentDay : daysInMonth,
     remainingDays: isCurrentMonth
-      ? Math.max(1, daysInMonth - now.getDate() + 1)
+      ? Math.max(1, daysInMonth - currentDay + 1)
       : daysInMonth,
   };
 }

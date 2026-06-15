@@ -95,6 +95,7 @@ export async function getTransactions() {
       categoryId: transactionsTable.categoryId,
       date: transactionsTable.transactionDate,
       description: transactionsTable.description,
+      title: transactionsTable.title,
       type: transactionsTable.type,
       amount: transactionsTable.amount,
       color: transactionsTable.color,

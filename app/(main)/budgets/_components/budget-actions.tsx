@@ -1,6 +1,7 @@
+import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { Eye } from "lucide-react";
-import { AddBudgetDialog, EditBudgetTrigger } from "./add-budget-dialog";
+import { Eye, Pencil } from "lucide-react";
+import { AddBudgetDialog } from "./add-budget-dialog";
 import { DeleteBudgetButton } from "./delete-budget-button";
 
 type BudgetDialogCategory = React.ComponentProps<
@@ -29,7 +30,7 @@ export function BudgetActions({
   return (
     <div className="flex justify-end gap-2">
       <Link
-        className="inline-flex size-8 items-center justify-center rounded-md border text-slate-600 hover:bg-slate-50"
+        className="inline-flex size-8 items-center justify-center rounded-md border text-muted-foreground hover:bg-muted/40"
         href={`/transactions?categoryId=${categoryId}&period=month`}
       >
         <Eye className="size-4" />
@@ -45,7 +46,12 @@ export function BudgetActions({
         }}
         categories={categories}
         month={month}
-        trigger={<EditBudgetTrigger />}
+        trigger={
+          <Button variant="outline" size="icon-sm">
+            <Pencil className="size-4" />
+            <span className="sr-only">Edit budget</span>
+          </Button>
+        }
       />
       <DeleteBudgetButton budgetId={id} />
     </div>

@@ -31,7 +31,7 @@ export function TransactionMiniList({
               {renderTransactionIcon(icon, "size-4")}
             </span>
             <div className="min-w-0 flex-1">
-              <p className="truncate text-sm font-bold text-slate-950">
+              <p className="truncate text-sm font-bold text-foreground">
                 {item.description}
               </p>
               <p className="text-xs text-muted-foreground">
@@ -42,7 +42,7 @@ export function TransactionMiniList({
               <p
                 className={cn(
                   "text-sm font-bold",
-                  signedAmount > 0 ? "text-emerald-600" : "text-slate-950"
+                  signedAmount > 0 ? "text-emerald-600" : "text-foreground"
                 )}
               >
                 {signedAmount > 0 ? "+" : "-"}{" "}

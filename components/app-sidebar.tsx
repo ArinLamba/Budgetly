@@ -3,6 +3,7 @@
 import {
   Sidebar,
   SidebarContent,
+  SidebarFooter,
   SidebarGroup,
   SidebarHeader,
   SidebarMenu,
@@ -15,6 +16,7 @@ import { SIDEBAR_ITEMS } from "@/lib/constants"
 import Image from "next/image"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
+import { ModeToggle } from "./theme-toggle";
 
 export const AppSidebar = () => {
 
@@ -30,11 +32,11 @@ export const AppSidebar = () => {
               className="flex flex-1 items-center gap-2 group-data-[collapsible=icon]:hidden"
             >
               <Image src="/logo.svg" alt="logo" width={34} height={34} />
-              <h1 className="text-lg font-black tracking-normal text-white">
+              <h1 className="text-lg font-black tracking-normal text-indigo-700">
                 Budgetly
               </h1>
             </Link>
-            <SidebarTrigger className="text-zinc-300" />
+            <SidebarTrigger  className="text-muted-foreground"/>
           </div>
         </SidebarHeader>
         <SidebarContent>
@@ -49,7 +51,7 @@ export const AppSidebar = () => {
                     <SidebarMenuButton
                       asChild
                       isActive={isActive}
-                      className="my-1 h-10 text-white/85 transition-all duration-200 ease-in hover:text-white data-active:bg-violet-950/60 data-active:text-white"
+                      className="my-1 h-8 transition-all duration-100 ease-in data-active:bg-sidebar-accent hover:bg-sidebar-accent"
                     >
                       <Link href={item.href} className="flex items-center gap-3">
                         <Icon />
@@ -62,9 +64,12 @@ export const AppSidebar = () => {
             </SidebarMenu>
           </SidebarGroup>
         </SidebarContent>
+        <SidebarFooter>
+          <ModeToggle />
+        </SidebarFooter>
       </Sidebar>
 
-      <nav className="fixed inset-x-3 bottom-3 z-40 rounded-xl border border-white/10 bg-slate-950/95 p-2 shadow-2xl backdrop-blur md:hidden">
+      <nav className="fixed inset-x-3 bottom-3 z-40 rounded-xl border bg-card/95 p-2 text-card-foreground shadow-2xl backdrop-blur md:hidden">
         <div className="grid grid-cols-7 gap-1">
           {SIDEBAR_ITEMS.map((item) => {
             const Icon = item.icon;
@@ -76,8 +81,8 @@ export const AppSidebar = () => {
                 href={item.href}
                 className={`flex h-11 items-center justify-center rounded-lg ${
                   isActive
-                    ? "bg-violet-950/80 text-white"
-                    : "text-white/70"
+                    ? "bg-indigo-700 text-white"
+                    : "text-muted-foreground hover:bg-muted hover:text-foreground"
                 }`}
                 aria-label={item.title}
               >

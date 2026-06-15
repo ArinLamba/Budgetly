@@ -1,22 +1,10 @@
-import { PageShell, PageTitle } from "../_components/finance-ui";
 import { getFinanceData } from "../_lib/finance-data";
-import { AddGoalDialog } from "./_components/add-goal-dialog";
-import { GoalList } from "./_components/goal-list";
+import { GoalsWorkspace } from "./_components/goals-workspace";
+import { sortGoalsByUrgency } from "./_lib/goal-metrics";
 
 export default async function GoalsPage() {
   const data = await getFinanceData();
+  const goals = sortGoalsByUrgency(data.goals);
 
-  return (
-    <PageShell>
-      <PageTitle
-        action={
-          <AddGoalDialog />
-        }
-      >
-        Goals
-      </PageTitle>
-
-      <GoalList goals={data.goals} />
-    </PageShell>
-  );
+  return <GoalsWorkspace goals={goals} />;
 }

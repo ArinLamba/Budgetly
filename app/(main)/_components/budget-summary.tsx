@@ -15,13 +15,13 @@ export function BudgetSummary({ budgets }: { budgets: FinanceBudgetRow[] }) {
         <div className="grid flex-1 grid-cols-3 gap-4">
           <div>
             <p className="text-xs text-muted-foreground">Total Budgeted</p>
-            <p className="mt-1 text-lg font-bold text-slate-950">
+            <p className="mt-1 text-lg font-bold text-foreground">
               {money.format(totalBudgeted)}
             </p>
           </div>
           <div>
             <p className="text-xs text-muted-foreground">Total Spent</p>
-            <p className="mt-1 text-lg font-bold text-slate-950">
+            <p className="mt-1 text-lg font-bold text-foreground">
               {money.format(totalSpent)}
             </p>
           </div>

@@ -36,7 +36,7 @@ export function BudgetOverviewChart({
     <SectionCard className="mb-4">
       <div className="mb-4 flex items-center justify-between gap-3">
         <div>
-          <h2 className="text-sm font-bold text-slate-950">
+          <h2 className="text-sm font-bold text-foreground">
             Budget Utilization
           </h2>
           <p className="mt-1 text-xs text-muted-foreground">

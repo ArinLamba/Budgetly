@@ -35,9 +35,9 @@ export function MetricCard({
         >
           <Icon className="size-4" />
         </span>
-        <p className="text-xs font-semibold text-slate-600">{label}</p>
+        <p className="text-xs font-semibold text-muted-foreground">{label}</p>
       </div>
-      <p className="mt-3 text-xl font-bold text-slate-950">{value}</p>
+      <p className="mt-3 text-xl font-bold text-foreground">{value}</p>
       <p
         className={cn(
           "mt-1 flex items-center gap-1 text-xs font-medium",

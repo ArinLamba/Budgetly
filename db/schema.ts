@@ -116,6 +116,7 @@ export const transactionsTable = pgTable(
     }),
     type: transactionTypeEnum().notNull(),
     amount: bigint({ mode: "number" }).notNull(),
+    title: varchar({ length: 120 }).notNull(),
     description: varchar({ length: 255 }).notNull(),
     icon: varchar({ length: 80 }).notNull().default("Wallet"),
     color: varchar({ length: 32 }).notNull().default("#6366f1"),
@@ -180,9 +181,33 @@ export const goalsTable = pgTable(
   ],
 );
 
+export const goalContributionsTable = pgTable(
+  "goal_contributions",
+  {
+    id: integer().primaryKey().generatedAlwaysAsIdentity(),
+    userId: integer("user_id")
+      .notNull()
+      .references(() => usersTable.id, { onDelete: "cascade" }),
+    goalId: integer("goal_id")
+      .notNull()
+      .references(() => goalsTable.id, { onDelete: "cascade" }),
+    amount: bigint({ mode: "number" }).notNull(),
+    note: varchar({ length: 160 }),
+    contributedAt: timestamp("contributed_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    index("goal_contributions_user_id_idx").on(table.userId),
+    index("goal_contributions_goal_id_idx").on(table.goalId),
+  ],
+);
+
 export const usersRelations = relations(usersTable, ({ many }) => ({
   accounts: many(accountsTable),
   categories: many(categoriesTable),
+  goalContributions: many(goalContributionsTable),
   transactions: many(transactionsTable),
   budgets: many(budgetsTable),
   goals: many(goalsTable),
@@ -238,9 +263,24 @@ export const budgetsRelations = relations(budgetsTable, ({ one }) => ({
   }),
 }));
 
-export const goalsRelations = relations(goalsTable, ({ one }) => ({
+export const goalsRelations = relations(goalsTable, ({ one, many }) => ({
+  contributions: many(goalContributionsTable),
   user: one(usersTable, {
     fields: [goalsTable.userId],
     references: [usersTable.id],
   }),
 }));
+
+export const goalContributionsRelations = relations(
+  goalContributionsTable,
+  ({ one }) => ({
+    goal: one(goalsTable, {
+      fields: [goalContributionsTable.goalId],
+      references: [goalsTable.id],
+    }),
+    user: one(usersTable, {
+      fields: [goalContributionsTable.userId],
+      references: [usersTable.id],
+    }),
+  })
+);

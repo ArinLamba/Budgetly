@@ -1,7 +1,6 @@
 import { Button } from "@/components/ui/button";
 import {
   BudgetSummary,
-  CategoryProgressList,
   DonutChart,
   MiniCalendar,
   PageShell,
@@ -10,7 +9,7 @@ import {
   SpendingCalendarLegend,
   TransactionMiniList,
 } from "../_components/finance-ui";
-import { CategoryPeriodControls, MonthControls } from "../_components/period-controls";
+import { MonthControls } from "../_components/period-controls";
 import {
   getBudgetRows,
   getCalendarDays,
@@ -25,6 +24,8 @@ import {
   getCategoryPeriodTransactions,
   normalizeCategoryPeriod,
 } from "./_lib/dashboard-period";
+import { CategoryPeriodControls } from "./_components/category-period-controls";
+import { CategoryProgressList } from "./_components/category-progress-list";
 import { DashboardMetricGrid } from "./_components/dashboard-metric-grid";
 
 export default async function DashboardPage({
@@ -86,15 +87,15 @@ export default async function DashboardPage({
       <div className="mt-4 grid gap-4 xl:grid-cols-[1.35fr_1fr]">
         <SectionCard>
           <div className="mb-4 flex items-center justify-between">
-            <h2 className="text-sm font-bold text-slate-950">Expenses Overview</h2>
+            <h2 className="text-sm font-bold text-foreground">Expenses Overview</h2>
           </div>
           <DonutChart categories={categorySummaries} />
         </SectionCard>
 
         <SectionCard>
           <div className="mb-4 flex items-center justify-between">
-            <h2 className="text-sm font-bold text-slate-950">Recent Transactions</h2>
-            <Link href="/transactions"  className="h-7 px-2 text-xs text-violet-700">
+            <h2 className="text-sm font-bold text-foreground">Recent Transactions</h2>
+            <Link href="/transactions"  className="h-7 px-2 text-xs text-indigo-700">
               View all
             </Link>
           </div>
@@ -105,7 +106,7 @@ export default async function DashboardPage({
       <div className="mt-4 grid gap-4 xl:grid-cols-[1.2fr_1fr]">
         <SectionCard>
           <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <h2 className="text-sm font-bold text-slate-950">Spending Calendar</h2>
+            <h2 className="text-sm font-bold text-foreground">Spending Calendar</h2>
             <MonthControls month={data.monthKey} pathname="/dashboard" />
           </div>
           <div className="grid gap-4 lg:grid-cols-[1fr_auto] lg:items-start">
@@ -117,7 +118,7 @@ export default async function DashboardPage({
         </SectionCard>
         <SectionCard>
           <div className="mb-4 flex items-center justify-between">
-            <h2 className="text-sm font-bold text-slate-950">Top Categories</h2>
+            <h2 className="text-sm font-bold text-foreground">Top Categories</h2>
             <CategoryPeriodControls
               month={data.monthKey}
               pathname="/dashboard"

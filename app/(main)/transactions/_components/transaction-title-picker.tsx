@@ -65,7 +65,7 @@ export function TransactionTitlePicker({
               }}
               onClick={() => setOpen(true)}
               onFocus={() => setOpen(true)}
-              placeholder="Search or enter title..."
+              placeholder="Search or enter description..."
               className="h-full border-0 bg-transparent p-0 shadow-none focus-visible:ring-0"
             />
             <IconSearch className="ml-2 size-4 shrink-0 text-muted-foreground" />
@@ -82,7 +82,7 @@ export function TransactionTitlePicker({
           <div className="max-h-[440px] overflow-y-auto pr-1">
             {visibleGroups.length === 0 ? (
               <div className="py-4 text-center text-xs text-muted-foreground">
-                Press enter to use &quot;{value || "this title"}&quot;.
+                Press enter to use &quot;{value || "this description"}&quot;.
               </div>
             ) : null}
 
@@ -104,11 +104,11 @@ export function TransactionTitlePicker({
                         onClick={() => selectSuggestion(suggestion)}
                         className={`flex w-full items-center gap-3 rounded-lg border px-3 py-3 text-left transition-colors ${
                           selected
-                            ? "border-indigo-300 bg-indigo-50"
-                            : "border-slate-200 bg-slate-50 hover:border-indigo-200 hover:bg-indigo-50"
+                            ? "border-indigo-500/40 bg-indigo-500/10"
+                            : "border-border bg-muted/30 hover:border-indigo-500/30 hover:bg-indigo-500/10"
                         }`}
                       >
-                        <span className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-white text-indigo-700 shadow-sm">
+                        <span className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-background text-indigo-700 shadow-sm">
                           <TransactionSuggestionIcon
                             className="size-5"
                             icon={suggestion.icon}
@@ -116,7 +116,7 @@ export function TransactionTitlePicker({
                           />
                         </span>
                         <span className="min-w-0 flex-1">
-                          <span className="block truncate text-sm font-semibold text-slate-900">
+                          <span className="block truncate text-sm font-semibold text-foreground">
                             {suggestion.label}
                           </span>
                           <span className="block text-xs text-muted-foreground">

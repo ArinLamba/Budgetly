@@ -24,6 +24,7 @@ async function readTransactionPayload(formData: FormData) {
   }
 
   const description = readString(formData, "description");
+  const title = readString(formData, "title") || description;
   const type = readString(formData, "type");
   const amount = Number(readString(formData, "amount"));
   const transactionDate = readString(formData, "transactionDate");
@@ -144,6 +145,7 @@ async function readTransactionPayload(formData: FormData) {
       description,
       icon,
       paymentMethod: paymentMethod as PaymentMethod,
+      title,
       transactionDate,
     },
     user,

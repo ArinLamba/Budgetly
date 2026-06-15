@@ -1,7 +1,7 @@
 import { Progress } from "@/components/ui/progress";
-import type { FinanceCategorySummary } from "../_lib/finance-data";
-import { renderTransactionIcon } from "../transactions/_lib/appearance";
-import { EmptyState } from "./empty-state";
+import type { FinanceCategorySummary } from "../../_lib/finance-data";
+import { EmptyState } from "../../_components/empty-state";
+import { renderTransactionIcon } from "../../transactions/_lib/appearance";
 
 export function CategoryProgressList({
   categories,
@@ -36,7 +36,7 @@ export function CategoryProgressList({
                 {renderTransactionIcon(category.icon ?? "Wallet", "size-4")}
               </span>
               <div className="min-w-0 flex-1">
-                <p className="truncate text-sm font-bold text-slate-950">
+                <p className="truncate text-sm font-bold text-foreground">
                   {category.name}
                 </p>
                 <Progress
@@ -46,7 +46,7 @@ export function CategoryProgressList({
                 />
               </div>
             </div>
-            <p className="text-xs font-semibold text-slate-600">
+            <p className="text-xs font-semibold text-muted-foreground">
               {category.percent}%
             </p>
           </div>
