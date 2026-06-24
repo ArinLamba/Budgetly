@@ -9,7 +9,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
-import { IconPencil } from "@tabler/icons-react";
+import { IconPencil, IconTrash } from "@tabler/icons-react";
 import { Fragment } from "react";
 import type { TransactionFormOptions, TransactionRow } from "../_lib/data";
 import { renderTransactionIcon } from "../_lib/appearance";
@@ -17,6 +17,8 @@ import { AddTransactionDialog } from "./add-transaction-dialog";
 import { DeleteTransactionButton } from "./delete-transaction-button";
 import { addDays, formatDateKey, getDateKey } from "../../_lib/date-utils";
 import { CardWrapper } from "@/components/card-wrapper";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { EllipsisVertical } from "lucide-react";
 
 type Props = TransactionFormOptions & {
   transactions: TransactionRow[];
@@ -151,19 +153,34 @@ export function TransactionsTable({ accounts, categories, transactions }: Props)
                         {formatDate(transaction.date)}
                       </p>
                     </div>
-
-                    <AddTransactionDialog
-                      accounts={accounts}
-                      categories={categories}
-                      transaction={transaction}
-                      trigger={
-                        <Button variant="ghost" size="icon-sm">
-                          <IconPencil className="size-4 text-muted-foreground" />
-                          <span className="sr-only">Edit transaction</span>
-                        </Button>
-                      }
-                    />
-                    <DeleteTransactionButton transactionId={transaction.id} />
+                    
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <EllipsisVertical size={18} className="h-full w-ful ml-2 g-amber-400"/>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent className="space-y-1" align="center">
+                        <AddTransactionDialog
+                          accounts={accounts}
+                          categories={categories}
+                          transaction={transaction}
+                          trigger={
+                            <Button variant={"ghost"} className=" flex w-full justify-between items-center">
+                              <p >Edit </p>
+                              <IconPencil className="size-4 text-muted-foreground" />
+                            </Button>
+                          }
+                        />
+                        <DeleteTransactionButton 
+                          trigger={
+                            <Button variant={"destructive"} className=" flex w-full justify-between items-center">
+                              <p >Delete </p>
+                              <IconTrash className="size-4" />
+                            </Button>
+                          }
+                          transactionId={transaction.id} 
+                        />
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </div>
                 </div>
               );
@@ -206,7 +223,7 @@ export function TransactionsTable({ accounts, categories, transactions }: Props)
               <TableRow className="border-b-0 hover:bg-transparent">
                 <TableCell
                   colSpan={7}
-                  className="px-4 pb-2 pt-4 text-xs font-bold text-indigo-700"
+                  className="px-4 pb-2 pt-4 text-xs font-bold text-indigo-700 bg-background"
                 >
                   {group.label}
                 </TableCell>

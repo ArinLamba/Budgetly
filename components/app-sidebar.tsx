@@ -16,7 +16,7 @@ import { SIDEBAR_ITEMS } from "@/lib/constants"
 import Image from "next/image"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { ModeToggle } from "./theme-toggle";
+import { ThemeSelect } from "./theme-toggle";
 
 export const AppSidebar = () => {
 
@@ -65,7 +65,7 @@ export const AppSidebar = () => {
           </SidebarGroup>
         </SidebarContent>
         <SidebarFooter>
-          <ModeToggle />
+          <ThemeSelect />
         </SidebarFooter>
       </Sidebar>
 

@@ -1,9 +1,13 @@
 import { Button } from "@/components/ui/button";
-import type { getFinanceData } from "../../_lib/finance-data";
+// import type { getFinanceData } from "../../_lib/finance-data";
 import { settingsNav } from "../_lib/settings-nav";
+import { getCurrentDbUser } from "../../transactions/_lib/data";
+import { SignInButton, SignOutButton, UserButton } from "@clerk/nextjs";
+import { ThemeSelect } from "@/components/theme-toggle";
+import { LogOut } from "lucide-react";
 
 type Props = {
-  user: Awaited<ReturnType<typeof getFinanceData>>["user"];
+  user: Awaited<ReturnType<typeof getCurrentDbUser>>;
 };
 
 export function SettingsContent({ user }: Props) {
@@ -25,15 +29,25 @@ export function SettingsContent({ user }: Props) {
       </aside>
 
       <div className="space-y-4">
-        <section className="rounded-lg border bg-background p-5 shadow-xs">
+        <section className="rounded-lg border bg-card p-5 shadow-xs ">
           <h2 className="text-base font-bold text-foreground">Profile</h2>
-          <div className="mt-5 flex items-center gap-4">
-            <div className="size-16 rounded-full bg-[linear-gradient(135deg,#f9a8d4,#fdba74)]" />
-            <div>
-              <p className="font-bold text-foreground">
-                {user.name ?? "Budgetly user"}
-              </p>
-              <p className="text-sm text-muted-foreground">{user.email}</p>
+          <div className="mt-5 flex justify-evenly max-w-xl">
+            <div className="flex gap-4 items-center">
+              <UserButton />
+              <div className="">
+                <p className="font-bold text-foreground">
+                  {user.name ?? "Budgetly user"}
+                </p>
+                <p className="text-sm text-muted-foreground">{user.email}</p>
+              </div>
+            </div>
+            <div className="w-full flex items-center justify-end">
+              <SignOutButton>
+                <Button variant="destructive">
+                  <LogOut size={18}/>
+                  <p>Log Out</p>
+                </Button>
+              </SignOutButton>
             </div>
           </div>
 
@@ -41,23 +55,28 @@ export function SettingsContent({ user }: Props) {
             Preferences
           </h3>
           <div className="mt-4 grid max-w-xl gap-3">
-            {[
-              ["Currency", "INR (Rs)"],
-              ["Date Format", "DD MMM YYYY"],
-              ["Theme", "Light"],
-            ].map(([label, value]) => (
-              <div
-                key={label}
-                className="grid grid-cols-[1fr_180px] items-center gap-3"
-              >
-                <span className="text-sm font-medium text-foreground">
-                  {label}
-                </span>
-                <button className="rounded-md border bg-background px-3 py-2 text-left text-sm font-medium text-foreground">
-                  {value}
-                </button>
+            <div className="grid grid-cols-[1fr_180px] items-center gap-3">
+              <span className="text-sm font-medium text-foreground">
+                Crrency
+              </span>
+              <div className="rounded-md border bg-background px-3 py-2 text-left text-sm font-medium text-foreground">
+                INR (Rs)
               </div>
-            ))}
+            </div>
+            <div className="grid grid-cols-[1fr_180px] items-center gap-3">
+              <span className="text-sm font-medium text-foreground">
+                Date Format
+              </span>
+              <div className="rounded-md border bg-background px-3 py-2 text-left text-sm font-medium text-foreground">
+                DD MM YYYY              
+              </div>
+            </div>
+            <div className="grid grid-cols-[1fr_180px] items-center gap-3">
+              <span className="text-sm font-medium text-foreground">
+                Theme
+              </span>
+              <ThemeSelect />
+            </div>
           </div>
         </section>
 

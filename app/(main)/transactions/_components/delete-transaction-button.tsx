@@ -21,10 +21,11 @@ import { deleteTransaction } from "../_lib/actions";
 import { Trash2Icon } from "lucide-react";
 
 type Props = {
+  trigger?: React.ReactNode;
   transactionId: number;
 };
 
-export function DeleteTransactionButton({ transactionId }: Props) {
+export function DeleteTransactionButton({ trigger, transactionId }: Props) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [pending, startTransition] = useTransition();
@@ -40,13 +41,15 @@ export function DeleteTransactionButton({ transactionId }: Props) {
   return (
     <AlertDialog open={open} onOpenChange={setOpen}>
       <AlertDialogTrigger asChild>
-        <Button
-          variant="destructive"
-          size="icon-sm"
-        >
-          <IconTrash className="size-4" />
-          <span className="sr-only">Delete transaction</span>
-        </Button>
+        {trigger ?? 
+          <Button
+            variant="destructive"
+            size="icon-sm"
+          >
+            <IconTrash className="size-4" />
+            <span className="sr-only">Delete transaction</span>
+          </Button>
+        }
       </AlertDialogTrigger>
       <AlertDialogContent size="sm">
         <AlertDialogHeader>
