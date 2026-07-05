@@ -171,6 +171,8 @@ export const goalsTable = pgTable(
     savedAmount: bigint("saved_amount", { mode: "number" }).notNull().default(0),
     targetDate: date("target_date", { mode: "string" }),
     imageUrl: text("image_url"),
+    icon: varchar({ length: 80 }).notNull().default("Goal"),
+    color: varchar({ length: 32 }).notNull().default("#6366f1"),
     status: goalStatusEnum().notNull().default("active"),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
@@ -201,6 +203,10 @@ export const goalContributionsTable = pgTable(
   (table) => [
     index("goal_contributions_user_id_idx").on(table.userId),
     index("goal_contributions_goal_id_idx").on(table.goalId),
+    index("goal_contributions_goal_date_idx").on(
+      table.goalId,
+      table.contributedAt,
+    ),
   ],
 );
 

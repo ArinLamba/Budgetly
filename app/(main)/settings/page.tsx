@@ -1,5 +1,4 @@
 import { PageShell, PageTitle } from "../_components/finance-ui";
-import { getFinanceData } from "../_lib/finance-data";
 import { getCurrentDbUser } from "../transactions/_lib/data";
 import { SettingsContent } from "./_components/settings-content";
 
@@ -8,7 +7,9 @@ export default async function SettingsPage() {
 
   return (
     <PageShell>
-      <PageTitle>Settings</PageTitle>
+      <PageTitle
+        heading={<h1 className="text-xl font-bold">Settings</h1>}
+      />
       <SettingsContent user={user} />
     </PageShell>
   );

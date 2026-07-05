@@ -7,9 +7,13 @@ import { Archive, Check, Pencil, RotateCcw } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useTransition } from "react";
 import { updateGoalStatus } from "../../_lib/actions";
-import { AddGoalDialog } from "./add-goal-dialog";
 import { ContributeGoalDialog } from "./contribute-goal-dialog";
 import { DeleteGoalButton } from "./delete-goal-button";
+import dynamic from "next/dynamic";
+
+const AddGoalDialog = dynamic(() =>
+  import("./add-goal-dialog").then((module) => module.AddGoalDialog)
+);
 
 export function GoalActions({ goal }: { goal: FinanceGoalRow }) {
   const router = useRouter();

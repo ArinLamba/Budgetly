@@ -1,11 +1,6 @@
 "use client";
 
 import {
-  InputGroup,
-  InputGroupAddon,
-  InputGroupInput,
-} from "@/components/ui/input-group";
-import {
   Select,
   SelectContent,
   SelectItem,
@@ -15,8 +10,6 @@ import {
 
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
-import { IconSearch } from "@tabler/icons-react";
-import { AddTransactionDialog } from "./add-transaction-dialog";
 import type { TransactionFormOptions } from "../_lib/data";
 import type {
   TransactionFilters,
@@ -25,6 +18,13 @@ import type {
   TransactionTab,
 } from "../_lib/types";
 import { CardWrapper } from "@/components/card-wrapper";
+import dynamic from "next/dynamic";
+import { PageTitle } from "../../_components/layout-parts";
+import { SearchBar } from "./search-bar";
+
+const AddTransactionDialog = dynamic(() =>
+  import("./add-transaction-dialog").then((module) => module.AddTransactionDialog)
+);
 
 type Props = TransactionFormOptions & {
   filters: TransactionFilters;
@@ -33,6 +33,8 @@ type Props = TransactionFormOptions & {
   onQueryChange: (query: string) => void;
   onSortChange: (sort: TransactionSort) => void;
   onTabChange: (tab: TransactionTab) => void;
+  pending: boolean;
+  query: string;
 };
 
 export function TransactionsHeader({
@@ -44,6 +46,8 @@ export function TransactionsHeader({
   onQueryChange,
   onSortChange,
   onTabChange,
+  pending,
+  query,
 }: Props) {
   const visibleCategories =
     filters.tab === "all"
@@ -52,30 +56,30 @@ export function TransactionsHeader({
 
   return (
     <>
-      <div className="sticky top-0 z-20  px-3 py-2 bg-background">
-        <div className="flex items-center justify-between gap-3">
-          <div className="min-w-0">
-            <h1 className="text-xl font-bold text-sidebar-foreground">Transactions</h1>
+      <PageTitle
+        heading={
+          <div>
+            <h1 className="text-xl font-bold">Transactions</h1>
             <p className="hidden text-xs font-medium text-muted-foreground sm:block">
               Track income, expenses, and payment activity.
             </p>
           </div>
-          <div className="flex min-w-0 flex-1 justify-end gap-2 sm:flex-none">
-            <InputGroup className="h-9 max-w-[180px] rounded-lg bg-muted/40 sm:w-56 sm:max-w-none">
-              <InputGroupAddon>
-                <IconSearch className="size-4 text-muted-foreground" />
-              </InputGroupAddon>
-              <InputGroupInput
-                value={filters.query}
-                onChange={(event) => onQueryChange(event.target.value)}
-                placeholder="Search..."
-                className="text-sm"
-              />
-            </InputGroup>
-            <AddTransactionDialog accounts={accounts} categories={categories} />
-          </div>
-        </div>
-      </div>
+        }
+        action={
+          <>
+            <SearchBar
+              value={query}
+              onChange={onQueryChange}
+              loading={pending}
+            />
+
+            <AddTransactionDialog
+              accounts={accounts}
+              categories={categories}
+            />
+          </>
+        }
+      />
 
       <header className="">
         <CardWrapper>        

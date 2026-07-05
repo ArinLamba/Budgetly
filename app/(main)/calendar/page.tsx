@@ -8,8 +8,7 @@ import {
 import { MonthControls } from "../_components/period-controls";
 import {
   getCalendarDays,
-  getFinanceData,
-  getMonthTransactions,
+  getCalendarData,
 } from "../_lib/finance-data";
 import { getDateFromKey } from "../_lib/date-utils";
 import { CalendarActivityCard } from "./_components/calendar-activity-card";
@@ -20,21 +19,19 @@ export default async function CalendarPage({
 }: PageProps<"/calendar">) {
   const params = await searchParams;
   const month = typeof params.month === "string" ? params.month : undefined;
-  const data = await getFinanceData(month);
-  const monthTransactions = getMonthTransactions(data.transactions, data.monthKey);
+  const data = await getCalendarData(month);
   const calendarDays = getCalendarDays(
-    monthTransactions,
+    data.monthTransactions,
     getDateFromKey(data.monthKey)
   );
-  const summary = getCalendarSummary(monthTransactions);
+  const summary = getCalendarSummary(data.monthTransactions);
 
   return (
     <PageShell>
       <PageTitle
+        heading={<h1 className="text-xl font-bold">Spending Calender</h1>}
         action={<MonthControls month={data.monthKey} pathname="/calendar" />}
-      >
-        Spending Calendar
-      </PageTitle>
+      />
 
       <SectionCard>
         <div className="grid gap-4 lg:grid-cols-[1fr_auto] lg:items-start">
@@ -48,7 +45,7 @@ export default async function CalendarPage({
       <CalendarActivityCard
         title={data.monthKey.slice(0, 7)}
         total={summary.total}
-        transactions={monthTransactions}
+        transactions={data.monthTransactions}
       />
     </PageShell>
   );

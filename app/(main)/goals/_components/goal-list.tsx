@@ -12,7 +12,7 @@ import {
   getGoalRemaining,
   getGoalTargetDateLabel,
 } from "../_lib/goal-progress";
-import { Goal, Laptop, Shield, Smartphone } from "lucide-react";
+import { getGoalVisual } from "../_lib/goal-visuals";
 import { GoalActions } from "./goal-actions";
 
 function getStatusStyle(status: FinanceGoalRow["status"]) {
@@ -38,33 +38,6 @@ function getPaceLabel(pace: ReturnType<typeof getGoalPace>) {
   return labels[pace];
 }
 
-const goalVisuals = [
-  {
-    accent: "text-indigo-700",
-    background: "bg-violet-50",
-    border: "border-violet-100",
-    progress: "bg-violet-600",
-  },
-  {
-    accent: "text-emerald-700",
-    background: "bg-emerald-50",
-    border: "border-emerald-100",
-    progress: "bg-emerald-500",
-  },
-  {
-    accent: "text-sky-700",
-    background: "bg-sky-50",
-    border: "border-sky-100",
-    progress: "bg-sky-500",
-  },
-  {
-    accent: "text-amber-700",
-    background: "bg-amber-50",
-    border: "border-amber-100",
-    progress: "bg-amber-500",
-  },
-];
-
 export function GoalList({
   goals,
   onGoalSelect,
@@ -80,13 +53,11 @@ export function GoalList({
     );
   }
 
-  const goalIcons = [Laptop, Shield, Smartphone, Goal];
-
   return (
     <div className="mt-4 grid gap-4">
-        {goals.map((goal, index) => {
-          const Icon = goalIcons[index % goalIcons.length];
-          const visual = goalVisuals[index % goalVisuals.length];
+        {goals.map((goal) => {
+          const visual = getGoalVisual(goal.icon, goal.name);
+          const Icon = visual.Icon;
           const progress = getGoalProgress(goal.savedAmount, goal.targetAmount);
           const remaining = getGoalRemaining(goal.savedAmount, goal.targetAmount);
           const monthlyNeed = getGoalMonthlyNeed({

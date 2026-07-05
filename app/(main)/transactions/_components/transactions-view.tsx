@@ -1,206 +1,164 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useTransition } from "react";
+import type { TransactionFilters, TransactionTab } from "../_lib/types";
 import type {
-  TransactionFilters,
-  TransactionSort,
-  TransactionSummaryPeriod,
-  TransactionTab,
-} from "../_lib/types";
-import type {
+  getTransactionPage,
   TransactionFormOptions,
-  TransactionRow,
 } from "../_lib/data";
+import { defaultTransactionFilters } from "../_lib/filters";
 import { TransactionsHeader } from "./transactions-header";
 import { TransactionsSummary } from "./transactions-summary";
 import { TransactionsTable } from "./transactions-table";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import {
-  addDays,
-  addMonthsToMonthKey,
-  getDateKey,
-  getDayOfWeek,
-  getMonthKey,
-} from "../../_lib/date-utils";
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
+import { PageShell } from "../../_components/layout-parts";
 
 type Props = TransactionFormOptions & {
-  initialFilters?: Partial<TransactionFilters>;
-  transactions: TransactionRow[];
+  transactionPage: Awaited<ReturnType<typeof getTransactionPage>>;
 };
 
-const initialFilters: TransactionFilters = {
-  categoryId: "all",
-  period: "month",
-  query: "",
-  sort: "date-desc",
-  tab: "all",
-};
+function setParam(params: URLSearchParams, key: string, value: string) {
+  const defaultValue =
+    defaultTransactionFilters[key as keyof TransactionFilters];
 
-function getDateRange(period: TransactionSummaryPeriod) {
-  const today = getDateKey();
-
-  if (period === "all") {
-    return null;
+  if (value && value !== String(defaultValue)) {
+    params.set(key, value);
+  } else {
+    params.delete(key);
   }
-
-  if (period === "today") {
-    return {
-      end: addDays(today, 1),
-      start: today,
-    };
-  }
-
-  if (period === "week") {
-    const day = getDayOfWeek(today);
-    const daysSinceMonday = day === 0 ? 6 : day - 1;
-    const start = addDays(today, -daysSinceMonday);
-
-    return {
-      end: addDays(start, 7),
-      start,
-    };
-  }
-
-  if (period === "year") {
-    const year = today.slice(0, 4);
-
-    return {
-      end: `${Number(year) + 1}-01-01`,
-      start: `${year}-01-01`,
-    };
-  }
-
-  const monthKey = getMonthKey();
-
-  return {
-    end: addMonthsToMonthKey(monthKey, 1),
-    start: monthKey,
-  };
-}
-
-function isInPeriod(date: string, period: TransactionSummaryPeriod) {
-  const range = getDateRange(period);
-
-  if (!range) {
-    return true;
-  }
-
-  return date >= range.start && date < range.end;
-}
-
-function compareBySort(sort: TransactionSort) {
-  return (left: TransactionRow, right: TransactionRow) => {
-    if (sort === "amount-desc") {
-      return right.amount - left.amount;
-    }
-
-    if (sort === "amount-asc") {
-      return left.amount - right.amount;
-    }
-
-    if (sort === "title-asc") {
-      return left.title.localeCompare(right.title);
-    }
-
-    const dateCompare = left.date.localeCompare(right.date);
-
-    if (dateCompare !== 0) {
-      return sort === "date-asc" ? dateCompare : -dateCompare;
-    }
-
-    return sort === "date-asc" ? left.id - right.id : right.id - left.id;
-  };
 }
 
 export function TransactionsView({
   accounts,
   categories,
-  initialFilters: initialFiltersProp,
-  transactions,
+  transactionPage,
 }: Props) {
-  const [filters, setFilters] = useState<TransactionFilters>({
-    ...initialFilters,
-    ...initialFiltersProp,
-  });
+  const filters = transactionPage.filters;
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const [pending, startTransition] = useTransition();
 
-  const periodTransactions = useMemo(() => {
-    return transactions.filter((transaction) =>
-      isInPeriod(transaction.date, filters.period)
-    );
-  }, [filters.period, transactions]);
+  function pushFilters(nextFilters: TransactionFilters) {
+    const params = new URLSearchParams(searchParams.toString());
 
-  const filteredTransactions = useMemo(() => {
-    const query = filters.query.trim().toLowerCase();
+    setParam(params, "tab", nextFilters.tab);
+    setParam(params, "period", nextFilters.period);
+    setParam(params, "categoryId", nextFilters.categoryId);
+    setParam(params, "sort", nextFilters.sort);
+    setParam(params, "query", nextFilters.query.trim());
+    setParam(params, "page", String(nextFilters.page));
 
-    return periodTransactions
-      .filter((transaction) => {
-        const matchesTab =
-          filters.tab === "all" || transaction.type === filters.tab;
-        const matchesCategory =
-          filters.categoryId === "all" ||
-          String(transaction.categoryId) === filters.categoryId;
-        const matchesQuery =
-          !query ||
-          transaction.title.toLowerCase().includes(query) ||
-          transaction.description.toLowerCase().includes(query) ||
-          transaction.category?.toLowerCase().includes(query) ||
-          transaction.account.toLowerCase().includes(query) ||
-          transaction.paymentMethod.toLowerCase().includes(query);
-
-        return matchesTab && matchesCategory && matchesQuery;
-      })
-      .sort(compareBySort(filters.sort));
-  }, [filters, periodTransactions]);
-
-  function updateFilters(nextFilters: TransactionFilters) {
-    setFilters(nextFilters);
-  }
-
-  function setTab(tab: TransactionTab) {
-    setFilters((current) => {
-      const nextFilters = {
-        ...current,
-        categoryId:
-          tab === "all" ||
-          current.categoryId === "all" ||
-          categories.some(
-            (category) =>
-              String(category.id) === current.categoryId &&
-              category.type === tab
-          )
-            ? current.categoryId
-            : "all",
-        tab,
-      };
-
-      return nextFilters;
+    startTransition(() => {
+      router.replace(`${pathname}${params.size ? `?${params}` : ""}`, {
+        scroll: false,
+      });
     });
   }
 
+  function setTab(tab: TransactionTab) {
+    pushFilters({
+      ...filters,
+      categoryId:
+        tab === "all" ||
+        filters.categoryId === "all" ||
+        categories.some(
+          (category) =>
+            String(category.id) === filters.categoryId && category.type === tab
+        )
+          ? filters.categoryId
+          : "all",
+      page: 1,
+      tab,
+    });
+  }
+
+  const pageStart =
+    transactionPage.totalCount === 0
+      ? 0
+      : (filters.page - 1) * transactionPage.pageSize + 1;
+  const pageEnd = Math.min(
+    filters.page * transactionPage.pageSize,
+    transactionPage.totalCount
+  );
+
   return (
-    <>
+    <PageShell classname="space-y-2">
       <TransactionsHeader
         accounts={accounts}
         categories={categories}
         filters={filters}
         onCategoryChange={(categoryId) =>
-          updateFilters({ ...filters, categoryId })
+          pushFilters({ ...filters, categoryId, page: 1 })
         }
-        onQueryChange={(query) =>
-          updateFilters({ ...filters, query })
-        }
-        onPeriodChange={(period) => updateFilters({ ...filters, period })}
-        onSortChange={(sort) => updateFilters({ ...filters, sort })}
+        onQueryChange={(query) => pushFilters({ ...filters, page: 1, query })}
+        onPeriodChange={(period) => pushFilters({ ...filters, page: 1, period })}
+        onSortChange={(sort) => pushFilters({ ...filters, page: 1, sort })}
         onTabChange={setTab}
+        pending={pending}
+        query={filters.query}
       />
       <TransactionsSummary
         period={filters.period}
-        transactions={periodTransactions}
+        summary={transactionPage.summary}
       />
       <TransactionsTable
         accounts={accounts}
         categories={categories}
-        transactions={filteredTransactions}
+        transactions={transactionPage.transactions}
       />
-    </>
+      <div className="flex flex-col items-center gap-3 py-3 text-xs text-muted-foreground sm:flex-row sm:justify-between">
+        <p>
+          Showing {pageStart}-{pageEnd} of {transactionPage.totalCount}
+        </p>
+        <Pagination className="mx-0 w-auto">
+          <PaginationContent>
+            <PaginationItem>
+              <PaginationPrevious
+                aria-disabled={!transactionPage.hasPreviousPage}
+                className={
+                  transactionPage.hasPreviousPage
+                    ? undefined
+                    : "pointer-events-none opacity-50"
+                }
+                href={
+                  transactionPage.hasPreviousPage
+                    ? `?${new URLSearchParams({
+                        ...Object.fromEntries(searchParams.entries()),
+                        page: String(filters.page - 1),
+                      })}`
+                    : "#"
+                }
+              />
+            </PaginationItem>
+            <PaginationItem>
+              <PaginationNext
+                aria-disabled={!transactionPage.hasNextPage}
+                className={
+                  transactionPage.hasNextPage
+                    ? undefined
+                    : "pointer-events-none opacity-50"
+                }
+                href={
+                  transactionPage.hasNextPage
+                    ? `?${new URLSearchParams({
+                        ...Object.fromEntries(searchParams.entries()),
+                        page: String(filters.page + 1),
+                      })}`
+                    : "#"
+                }
+              />
+            </PaginationItem>
+          </PaginationContent>
+        </Pagination>
+      </div>
+    </PageShell>
   );
 }

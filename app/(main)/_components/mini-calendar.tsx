@@ -7,10 +7,10 @@ export function MiniCalendar({
 }) {
   function colorForAmount(amount: number) {
     if (amount === 0) return "bg-muted";
-    if (amount <= 500) return "bg-emerald-100";
-    if (amount <= 1500) return "bg-yellow-200";
-    if (amount <= 3000) return "bg-orange-300";
-    return "bg-rose-300";
+    if (amount <= 500) return "bg-emerald-100 text-black";
+    if (amount <= 1500) return "bg-yellow-200 text-black";
+    if (amount <= 3000) return "bg-orange-300 text-black";
+    return "bg-rose-300 text-black";
   }
 
   return (

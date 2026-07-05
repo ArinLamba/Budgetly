@@ -36,6 +36,13 @@
       "when": 1781545454101,
       "tag": "0004_lonely_gauntlet",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1783232105302,
+      "tag": "0006_nervous_wonder_man",
+      "breakpoints": true
     }
   ]
 }

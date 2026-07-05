@@ -2,14 +2,16 @@
 
 import { cn } from "@/lib/utils";
 import { CircleDollarSign, ReceiptText, Wallet } from "lucide-react";
-import { useMemo } from "react";
-import type { TransactionRow } from "../_lib/data";
 import type { TransactionSummaryPeriod } from "../_lib/types";
 import { CardWrapper } from "@/components/card-wrapper";
 
 type Props = {
   period: TransactionSummaryPeriod;
-  transactions: TransactionRow[];
+  summary: {
+    count: number;
+    expense: number;
+    income: number;
+  };
 };
 
 const currency = new Intl.NumberFormat("en-IN", {
@@ -26,26 +28,7 @@ const periodLabels: Record<TransactionSummaryPeriod, string> = {
   all: "All Time",
 };
 
-export function TransactionsSummary({ period, transactions }: Props) {
-  const summary = useMemo(() => {
-    return transactions
-      .reduce(
-        (totals, transaction) => {
-          if (transaction.type === "income") {
-            totals.income += transaction.amount;
-          }
-
-          if (transaction.type === "expense") {
-            totals.expense += transaction.amount;
-          }
-
-          totals.count += 1;
-          return totals;
-        },
-        { count: 0, expense: 0, income: 0 }
-      );
-  }, [transactions]);
-
+export function TransactionsSummary({ period, summary }: Props) {
   const net = summary.income - summary.expense;
   const cards = [
     {

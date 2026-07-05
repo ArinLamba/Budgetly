@@ -17,6 +17,10 @@ function readString(formData: FormData, key: string) {
   return typeof value === "string" ? value.trim() : "";
 }
 
+function readColor(value: string) {
+  return /^#[0-9a-f]{6}$/i.test(value) ? value : "#6366f1";
+}
+
 export type FinanceActionState = {
   ok: boolean;
   message?: string;
@@ -135,6 +139,8 @@ export async function createGoal(
   const targetAmount = Number(readString(formData, "targetAmount"));
   const savedAmount = Number(readString(formData, "savedAmount") || "0");
   const targetDate = readString(formData, "targetDate") || null;
+  const icon = readString(formData, "icon") || "Shield";
+  const color = readColor(readString(formData, "color"));
 
   if (!name) {
     return { ok: false, message: "Goal name is required." };
@@ -154,6 +160,8 @@ export async function createGoal(
     await db
       .insert(goalsTable)
       .values({
+        color,
+        icon,
         name,
         savedAmount: Math.round(savedAmount),
         status,
@@ -198,6 +206,8 @@ export async function updateGoal(
   const savedAmount = Number(readString(formData, "savedAmount") || "0");
   const targetDate = readString(formData, "targetDate") || null;
   const requestedStatus = readGoalStatus(readString(formData, "status"));
+  const icon = readString(formData, "icon") || "Shield";
+  const color = readColor(readString(formData, "color"));
 
   if (!Number.isInteger(goalId) || goalId <= 0) {
     return { ok: false, message: "Choose a valid goal." };
@@ -232,6 +242,8 @@ export async function updateGoal(
   await db
     .update(goalsTable)
     .set({
+      color,
+      icon,
       name,
       savedAmount: Math.round(savedAmount),
       status,

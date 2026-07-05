@@ -14,7 +14,7 @@ export function DashboardMetricGrid({
   income: number;
 }) {
   return (
-    <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+    <div className="grid gap-4 grid-cols-2 xl:grid-cols-4">
       <MetricCard
         icon={icons.Wallet}
         label="Total Balance"

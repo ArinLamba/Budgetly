@@ -11,19 +11,13 @@ import {
 } from "../_components/finance-ui";
 import { MonthControls } from "../_components/period-controls";
 import {
+  getDashboardData,
   getBudgetRows,
   getCalendarDays,
-  getCategorySummaries,
-  getFinanceData,
-  getMonthTransactions,
-  getTotals,
 } from "../_lib/finance-data";
 import { Plus } from "lucide-react";
 import Link from "next/link";
-import {
-  getCategoryPeriodTransactions,
-  normalizeCategoryPeriod,
-} from "./_lib/dashboard-period";
+import { normalizeCategoryPeriod } from "./_lib/dashboard-period";
 import { CategoryPeriodControls } from "./_components/category-period-controls";
 import { CategoryProgressList } from "./_components/category-progress-list";
 import { DashboardMetricGrid } from "./_components/dashboard-metric-grid";
@@ -38,50 +32,37 @@ export default async function DashboardPage({
       ? params.categoryPeriod
       : undefined
   );
-  const data = await getFinanceData(month);
-  const monthTransactions = getMonthTransactions(data.transactions, data.monthKey);
-  const categoryTransactions = getCategoryPeriodTransactions({
-    monthKey: data.monthKey,
-    monthTransactions,
-    period: categoryPeriod,
-    transactions: data.transactions,
+  const data = await getDashboardData({
+    categoryPeriod,
+    monthKey: month,
   });
-  const totals = getTotals(monthTransactions);
-  const allTimeTotals = getTotals(data.transactions);
-  const balance =
-    data.accounts.reduce((sum, account) => sum + account.balanceSnapshot, 0) +
-    allTimeTotals.income -
-    allTimeTotals.expense;
-  const categorySummaries = getCategorySummaries(
-    data.categories,
-    categoryTransactions
-  );
-  const budgets = getBudgetRows(data.budgets, monthTransactions);
+  const budgets = getBudgetRows(data.budgets, data.monthTransactions);
   const budgetRemaining = budgets.reduce(
     (sum, budget) => sum + budget.remaining,
     0
   );
-  const calendarDays = getCalendarDays(monthTransactions);
+  const calendarDays = getCalendarDays(data.monthTransactions);
+  const firstName = data.user.name?.split(" ")[0] ?? "there";
 
   return (
     <PageShell>
       <PageTitle
+        heading={<h1 className="text-xl font-bold">{`Good morning, ${firstName}`}</h1>}
         action={
-          <Button variant="main" className="h-9 px-4 text-xs">
+          <Button variant="main" className="h-8 px-4 text-xs">
             <Plus className="size-4" />
             Add Transaction
           </Button>
         }
-      >
-        Good morning, Honey
-      </PageTitle>
+      />
+      
 
       <DashboardMetricGrid
-        balance={balance}
+        balance={data.balance}
         budgetCount={budgets.length}
         budgetRemaining={budgetRemaining}
-        expense={totals.expense}
-        income={totals.income}
+        expense={data.totals.expense}
+        income={data.totals.income}
       />
 
       <div className="mt-4 grid gap-4 xl:grid-cols-[1.35fr_1fr]">
@@ -89,7 +70,7 @@ export default async function DashboardPage({
           <div className="mb-4 flex items-center justify-between">
             <h2 className="text-sm font-bold text-foreground">Expenses Overview</h2>
           </div>
-          <DonutChart categories={categorySummaries} />
+          <DonutChart categories={data.categorySummaries} />
         </SectionCard>
 
         <SectionCard>
@@ -99,7 +80,7 @@ export default async function DashboardPage({
               View all
             </Link>
           </div>
-          <TransactionMiniList transactions={data.transactions} />
+          <TransactionMiniList transactions={data.recentTransactions} />
         </SectionCard>
       </div>
 
@@ -125,7 +106,7 @@ export default async function DashboardPage({
               period={categoryPeriod}
             />
           </div>
-          <CategoryProgressList categories={categorySummaries} compact />
+          <CategoryProgressList categories={data.categorySummaries} compact />
         </SectionCard>
       </div>
 

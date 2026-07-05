@@ -6,7 +6,31 @@ import {
   usersTable,
 } from "@/db/schema";
 import { currentUser } from "@clerk/nextjs/server";
-import { and, asc, desc, eq, isNull } from "drizzle-orm";
+import {
+  and,
+  asc,
+  desc,
+  eq,
+  gte,
+  ilike,
+  isNull,
+  lt,
+  or,
+  sql,
+} from "drizzle-orm";
+import {
+  addDays,
+  addMonthsToMonthKey,
+  getDateKey,
+  getDayOfWeek,
+  getMonthKey,
+} from "../../_lib/date-utils";
+import type {
+  TransactionFilters,
+  TransactionSort,
+  TransactionSummaryPeriod,
+} from "./types";
+import { defaultTransactionFilters, transactionPageSize } from "./filters";
 
 const defaultCategories = [
   { name: "Food & Dining", type: "expense", color: "#fb923c", icon: "Food" },
@@ -43,7 +67,9 @@ const defaultCategories = [
   { name: "Rental Income", type: "income", color: "#0f766e", icon: "Home" },
 ] as const;
 
-export type TransactionRow = Awaited<ReturnType<typeof getTransactions>>[number];
+export type TransactionRow = Awaited<
+  ReturnType<typeof getTransactionPage>
+>["transactions"][number];
 export type TransactionFormOptions = Awaited<ReturnType<typeof getTransactionFormOptions>>;
 
 export async function getCurrentDbUser() {
@@ -85,36 +111,183 @@ export async function getCurrentDbUser() {
   return createdUser;
 }
 
-export async function getTransactions() {
-  const user = await getCurrentDbUser();
+function getDateRange(period: TransactionSummaryPeriod) {
+  const today = getDateKey();
 
-  return db
-    .select({
-      id: transactionsTable.id,
-      accountId: transactionsTable.accountId,
-      categoryId: transactionsTable.categoryId,
-      date: transactionsTable.transactionDate,
-      description: transactionsTable.description,
-      title: transactionsTable.title,
-      type: transactionsTable.type,
-      amount: transactionsTable.amount,
-      color: transactionsTable.color,
-      icon: transactionsTable.icon,
-      paymentMethod: transactionsTable.paymentMethod,
-      category: categoriesTable.name,
-      categoryColor: categoriesTable.color,
-      account: accountsTable.name,
-    })
-    .from(transactionsTable)
-    .innerJoin(accountsTable, eq(transactionsTable.accountId, accountsTable.id))
-    .leftJoin(categoriesTable, eq(transactionsTable.categoryId, categoriesTable.id))
-    .where(eq(transactionsTable.userId, user.id))
-    .orderBy(desc(transactionsTable.transactionDate), desc(transactionsTable.id));
+  if (period === "all") {
+    return null;
+  }
+
+  if (period === "today") {
+    return {
+      end: addDays(today, 1),
+      start: today,
+    };
+  }
+
+  if (period === "week") {
+    const day = getDayOfWeek(today);
+    const daysSinceMonday = day === 0 ? 6 : day - 1;
+    const start = addDays(today, -daysSinceMonday);
+
+    return {
+      end: addDays(start, 7),
+      start,
+    };
+  }
+
+  if (period === "year") {
+    const year = today.slice(0, 4);
+
+    return {
+      end: `${Number(year) + 1}-01-01`,
+      start: `${year}-01-01`,
+    };
+  }
+
+  const monthKey = getMonthKey();
+
+  return {
+    end: addMonthsToMonthKey(monthKey, 1),
+    start: monthKey,
+  };
+}
+
+function getTransactionWhere(userId: number, filters: TransactionFilters) {
+  const range = getDateRange(filters.period);
+  const conditions = [eq(transactionsTable.userId, userId)];
+  const categoryId = Number(filters.categoryId);
+
+  if (range) {
+    conditions.push(gte(transactionsTable.transactionDate, range.start));
+    conditions.push(lt(transactionsTable.transactionDate, range.end));
+  }
+
+  if (filters.tab !== "all") {
+    conditions.push(eq(transactionsTable.type, filters.tab));
+  }
+
+  if (Number.isInteger(categoryId) && categoryId > 0) {
+    conditions.push(eq(transactionsTable.categoryId, categoryId));
+  }
+
+  if (filters.query) {
+    const query = `%${filters.query}%`;
+    const searchCondition = or(
+      ilike(transactionsTable.title, query),
+      ilike(transactionsTable.description, query),
+      ilike(categoriesTable.name, query),
+      ilike(accountsTable.name, query),
+      ilike(sql`${transactionsTable.paymentMethod}::text`, query)
+    );
+
+    if (searchCondition) {
+      conditions.push(searchCondition);
+    }
+  }
+
+  return and(...conditions);
+}
+
+function getTransactionOrderBy(sort: TransactionSort) {
+  if (sort === "amount-desc") {
+    return [desc(transactionsTable.amount), desc(transactionsTable.id)];
+  }
+
+  if (sort === "amount-asc") {
+    return [asc(transactionsTable.amount), desc(transactionsTable.id)];
+  }
+
+  if (sort === "title-asc") {
+    return [
+      asc(transactionsTable.title),
+      desc(transactionsTable.transactionDate),
+      desc(transactionsTable.id),
+    ];
+  }
+
+  if (sort === "date-asc") {
+    return [asc(transactionsTable.transactionDate), asc(transactionsTable.id)];
+  }
+
+  return [desc(transactionsTable.transactionDate), desc(transactionsTable.id)];
+}
+
+export async function getTransactionPage(filters = defaultTransactionFilters) {
+  const user = await getCurrentDbUser();
+  const where = getTransactionWhere(user.id, filters);
+  const offset = (filters.page - 1) * transactionPageSize;
+
+  const [rows, countRows, summaryRows] = await Promise.all([
+    db
+      .select({
+        id: transactionsTable.id,
+        accountId: transactionsTable.accountId,
+        categoryId: transactionsTable.categoryId,
+        date: transactionsTable.transactionDate,
+        description: transactionsTable.description,
+        title: transactionsTable.title,
+        type: transactionsTable.type,
+        amount: transactionsTable.amount,
+        color: transactionsTable.color,
+        icon: transactionsTable.icon,
+        paymentMethod: transactionsTable.paymentMethod,
+        category: categoriesTable.name,
+        categoryColor: categoriesTable.color,
+        account: accountsTable.name,
+      })
+      .from(transactionsTable)
+      .innerJoin(accountsTable, eq(transactionsTable.accountId, accountsTable.id))
+      .leftJoin(categoriesTable, eq(transactionsTable.categoryId, categoriesTable.id))
+      .where(where)
+      .orderBy(...getTransactionOrderBy(filters.sort))
+      .limit(transactionPageSize)
+      .offset(offset),
+    db
+      .select({
+        count: sql<number>`count(*)`,
+      })
+      .from(transactionsTable)
+      .innerJoin(accountsTable, eq(transactionsTable.accountId, accountsTable.id))
+      .leftJoin(categoriesTable, eq(transactionsTable.categoryId, categoriesTable.id))
+      .where(where),
+    db
+      .select({
+        count: sql<number>`count(*)`,
+        expense:
+          sql<number>`coalesce(sum(case when ${transactionsTable.type} = 'expense' then ${transactionsTable.amount} else 0 end), 0)`,
+        income:
+          sql<number>`coalesce(sum(case when ${transactionsTable.type} = 'income' then ${transactionsTable.amount} else 0 end), 0)`,
+      })
+      .from(transactionsTable)
+      .innerJoin(accountsTable, eq(transactionsTable.accountId, accountsTable.id))
+      .leftJoin(categoriesTable, eq(transactionsTable.categoryId, categoriesTable.id))
+      .where(where),
+  ]);
+  const totalCount = Number(countRows[0]?.count ?? 0);
+
+  return {
+    filters,
+    hasNextPage: offset + rows.length < totalCount,
+    hasPreviousPage: filters.page > 1,
+    pageSize: transactionPageSize,
+    summary: {
+      count: Number(summaryRows[0]?.count ?? 0),
+      expense: Number(summaryRows[0]?.expense ?? 0),
+      income: Number(summaryRows[0]?.income ?? 0),
+    },
+    totalCount,
+    transactions: rows,
+  };
+}
+
+export async function getTransactions() {
+  return (await getTransactionPage()).transactions;
 }
 
 export async function getTransactionFormOptions() {
   const user = await getCurrentDbUser();
-  await ensureTransactionDefaults(user.id);
+  await ensureBaseTransactionDefaults(user.id);
 
   const [accounts, categories] = await Promise.all([
     db.query.accountsTable.findMany({
@@ -130,7 +303,7 @@ export async function getTransactionFormOptions() {
   return { accounts, categories };
 }
 
-export async function ensureTransactionDefaults(userId: number) {
+export async function ensureBaseTransactionDefaults(userId: number) {
   const [account] = await db
     .insert(accountsTable)
     .values({
@@ -172,6 +345,12 @@ export async function ensureTransactionDefaults(userId: number) {
       }))
     );
   }
+
+  return existingAccount;
+}
+
+export async function ensureTransactionDefaults(userId: number) {
+  const existingAccount = await ensureBaseTransactionDefaults(userId);
 
   await Promise.all(
     defaultCategories.map((category) =>

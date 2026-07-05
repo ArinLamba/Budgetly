@@ -1,12 +1,44 @@
 import { cn } from "@/lib/utils";
 import type { ReactNode } from "react";
 
-export function PageShell({ children }: { children: ReactNode }) {
+type PageTitleProps = {
+    heading: ReactNode;
+    action?: ReactNode;
+};
+
+type PageShellProps = {
+  children: ReactNode;
+  classname?: string;
+}
+
+export function PageShell({ children, classname }: PageShellProps) {
   return (
-    <div className="min-h-screen bg-muted/40 p-2 md:p-3">
-      <section className="min-h-[calc(100vh-1rem)] rounded-lg border bg-background p-4 shadow-sm md:p-6">
+    <div className="min-h-screen bg-muted/40">
+      <section className={cn(
+        "min-h-[calc(100vh-1rem)] rounded-lg border bg-background px-2 pb-4 md:px-4 shadow-sm",
+        classname
+      )}>
         {children}
       </section>
+    </div>
+  );
+}
+
+export function PageTitle({
+    heading,
+    action,
+}: PageTitleProps) {
+  return (
+    <div className="sticky top-0 z-20 bg-background px-5 py-3 -mx-2 border-b mb-2 md:border-b-0 md:mb-0">
+      <div className="flex items-center justify-between gap-3">
+        {heading}
+
+        {action && (
+          <div className="flex gap-2">
+            {action}
+          </div>
+        )}
+      </div>
     </div>
   );
 }
@@ -25,17 +57,3 @@ export function SectionCard({
   );
 }
 
-export function PageTitle({
-  action,
-  children,
-}: {
-  action?: ReactNode;
-  children: ReactNode;
-}) {
-  return (
-    <div className="mb-5 flex items-center justify-between gap-3">
-      <h1 className="text-xl font-bold text-foreground">{children}</h1>
-      {action}
-    </div>
-  );
-}

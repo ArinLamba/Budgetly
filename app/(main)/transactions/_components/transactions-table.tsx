@@ -13,12 +13,16 @@ import { IconPencil, IconTrash } from "@tabler/icons-react";
 import { Fragment } from "react";
 import type { TransactionFormOptions, TransactionRow } from "../_lib/data";
 import { renderTransactionIcon } from "../_lib/appearance";
-import { AddTransactionDialog } from "./add-transaction-dialog";
 import { DeleteTransactionButton } from "./delete-transaction-button";
 import { addDays, formatDateKey, getDateKey } from "../../_lib/date-utils";
 import { CardWrapper } from "@/components/card-wrapper";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { EllipsisVertical } from "lucide-react";
+import dynamic from "next/dynamic";
+
+const AddTransactionDialog = dynamic(() =>
+  import("./add-transaction-dialog").then((module) => module.AddTransactionDialog)
+);
 
 type Props = TransactionFormOptions & {
   transactions: TransactionRow[];
@@ -158,7 +162,7 @@ export function TransactionsTable({ accounts, categories, transactions }: Props)
                       <DropdownMenuTrigger asChild>
                         <EllipsisVertical size={18} className="h-full w-ful ml-2 g-amber-400"/>
                       </DropdownMenuTrigger>
-                      <DropdownMenuContent className="space-y-1" align="center">
+                      <DropdownMenuContent className="space-y-1" align="end">
                         <AddTransactionDialog
                           accounts={accounts}
                           categories={categories}

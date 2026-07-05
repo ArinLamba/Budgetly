@@ -22,6 +22,8 @@ import {
   updateGoal,
   type FinanceActionState,
 } from "../../_lib/actions";
+import { cn } from "@/lib/utils";
+import { getGoalVisual, goalVisuals } from "../_lib/goal-visuals";
 
 const initialState: FinanceActionState = { ok: false };
 
@@ -37,6 +39,8 @@ export function AddGoalDialog({
   const [open, setOpen] = useState(false);
   const [state, setState] = useState(initialState);
   const [pending, startTransition] = useTransition();
+  const initialVisual = getGoalVisual(goal?.icon, goal?.name);
+  const [selectedVisual, setSelectedVisual] = useState(initialVisual);
 
   function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -79,6 +83,8 @@ export function AddGoalDialog({
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={onSubmit} className="space-y-4">
+          <input name="icon" type="hidden" value={selectedVisual.icon} />
+          <input name="color" type="hidden" value={selectedVisual.color} />
           {goal ? (
             <>
               <input name="goalId" type="hidden" value={goal.id} />
@@ -131,6 +137,35 @@ export function AddGoalDialog({
                 name="targetDate"
                 type="date"
               />
+            </Field>
+            <Field>
+              <FieldLabel>Visual</FieldLabel>
+              <div className="grid grid-cols-4 gap-2">
+                {goalVisuals.map((visual) => {
+                  const Icon = visual.Icon;
+                  const selected = visual.icon === selectedVisual.icon;
+
+                  return (
+                    <button
+                      aria-pressed={selected}
+                      className={cn(
+                        "flex h-14 flex-col items-center justify-center gap-1 rounded-md border text-[10px] font-semibold transition-colors",
+                        selected
+                          ? "border-indigo-300 bg-indigo-50 text-indigo-700 ring-1 ring-indigo-100"
+                          : "bg-background text-muted-foreground hover:bg-muted/50"
+                      )}
+                      key={visual.icon}
+                      onClick={() => setSelectedVisual(visual)}
+                      type="button"
+                    >
+                      <Icon className="size-4" style={{ color: visual.color }} />
+                      <span className="max-w-full truncate px-1">
+                        {visual.label}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
             </Field>
             <FieldError>{state.message}</FieldError>
           </FieldGroup>

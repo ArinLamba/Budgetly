@@ -1,14 +1,19 @@
 import type { Metadata } from "next";
-import { Geist } from "next/font/google";
+import localFont from "next/font/local";
 import "./globals.css";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ClerkProvider } from "@clerk/nextjs";
 import { ThemeProvider } from "@/components/theme-provider";
 
-const geistSans = Geist({
-  subsets: ["latin"],
+const geistSans = localFont({
+  src: "./fonts/geist-latin.woff2",
+  variable: "--font-geist-sans",
 });
 
+const geistMono = localFont({
+  src: "./fonts/geist-mono-latin.woff2",
+  variable: "--font-geist-mono",
+});
 
 export const metadata: Metadata = {
   title: "Budgetly",
@@ -23,7 +28,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.className} h-full antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
       suppressHydrationWarning
     >
       <body className="min-h-full bg-background text-foreground">

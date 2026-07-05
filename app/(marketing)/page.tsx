@@ -216,7 +216,7 @@ function DashboardPreview() {
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
               <div>
                 <p className="text-2xl font-black tracking-normal text-slate-950">
-                  Good morning, Honey
+                  Good morning, Ava
                 </p>
                 <p className="mt-1 text-sm font-semibold text-slate-500">
                   Here is your financial overview

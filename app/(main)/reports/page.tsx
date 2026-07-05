@@ -7,10 +7,7 @@ import {
 } from "../_components/finance-ui";
 import { Button } from "@/components/ui/button";
 import {
-  getCategorySummaries,
-  getFinanceData,
-  getMonthTransactions,
-  getTotals,
+  getReportsData,
   getTrendPoints,
 } from "../_lib/finance-data";
 import { ReportsMetricGrid } from "./_components/reports-metric-grid";
@@ -20,24 +17,21 @@ export default async function ReportsPage({
 }: PageProps<"/reports">) {
   const params = await searchParams;
   const month = typeof params.month === "string" ? params.month : undefined;
-  const data = await getFinanceData(month);
-  const monthTransactions = getMonthTransactions(data.transactions, data.monthKey);
-  const totals = getTotals(monthTransactions);
-  const categorySummaries = getCategorySummaries(
-    data.categories,
-    monthTransactions
-  );
-  const trendPoints = getTrendPoints(monthTransactions, data.monthKey);
+  const data = await getReportsData(month);
+  const trendPoints = getTrendPoints(data.monthTransactions, data.monthKey);
 
   return (
     <PageShell>
       <PageTitle
+        heading={<h1 className="text-xl font-bold">Reports</h1>}
         action={<Button variant="outline" className="h-8 px-3 text-xs">This Month</Button>}
-      >
-        Reports
-      </PageTitle>
+      />
 
-      <ReportsMetricGrid expense={totals.expense} income={totals.income} />
+
+      <ReportsMetricGrid
+        expense={data.totals.expense}
+        income={data.totals.income}
+      />
 
       <SectionCard className="mt-4">
         <h2 className="mb-3 text-sm font-bold text-foreground">Spending Trend</h2>
@@ -46,7 +40,7 @@ export default async function ReportsPage({
 
       <SectionCard className="mt-4">
         <h2 className="mb-4 text-sm font-bold text-foreground">Expenses by Category</h2>
-        <DonutChart categories={categorySummaries} />
+        <DonutChart categories={data.categorySummaries} />
       </SectionCard>
     </PageShell>
   );

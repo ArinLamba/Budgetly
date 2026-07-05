@@ -1,8 +1,7 @@
 import { Button } from "@/components/ui/button";
-// import type { getFinanceData } from "../../_lib/finance-data";
 import { settingsNav } from "../_lib/settings-nav";
 import { getCurrentDbUser } from "../../transactions/_lib/data";
-import { SignInButton, SignOutButton, UserButton } from "@clerk/nextjs";
+import { SignOutButton, UserButton } from "@clerk/nextjs";
 import { ThemeSelect } from "@/components/theme-toggle";
 import { LogOut } from "lucide-react";
 

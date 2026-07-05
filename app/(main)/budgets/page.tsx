@@ -1,9 +1,7 @@
 import { BudgetSummary, PageShell, PageTitle } from "../_components/finance-ui";
 import {
-  addMonths,
   getBudgetRows,
-  getFinanceData,
-  getMonthTransactions,
+  getBudgetsData,
   getTotals,
   getUnbudgetedSpending,
 } from "../_lib/finance-data";
@@ -26,39 +24,35 @@ export default async function BudgetsPage({
 }: PageProps<"/budgets">) {
   const params = await searchParams;
   const month = typeof params.month === "string" ? params.month : undefined;
-  const data = await getFinanceData(month);
-  const monthTransactions = getMonthTransactions(data.transactions, data.monthKey);
-  const previousMonthTransactions = getMonthTransactions(
-    data.transactions,
-    addMonths(data.monthKey, -1)
-  );
-  const budgets = getBudgetRows(data.budgets, monthTransactions);
+  const data = await getBudgetsData(month);
+  const budgets = getBudgetRows(data.budgets, data.currentTransactions);
   const budgetMetrics = getBudgetMetrics(budgets);
-  const currentTotals = getTotals(monthTransactions);
-  const previousTotals = getTotals(previousMonthTransactions);
+  const currentTotals = getTotals(data.currentTransactions);
+  const previousTotals = getTotals(data.previousTransactions);
   const monthContext = getBudgetMonthContext(data.monthKey);
   const budgetDialogCategories = buildBudgetDialogCategories({
     budgets,
     categories: data.categories,
-    currentTransactions: monthTransactions,
-    previousTransactions: previousMonthTransactions,
+    currentTransactions: data.currentTransactions,
+    previousTransactions: data.previousTransactions,
   });
   const existingCategoryIds = budgets.map((budget) => budget.categoryId);
   const unbudgeted = getUnbudgetedSpending(
     data.categories,
     budgets,
-    monthTransactions
+    data.currentTransactions
   );
   const getInsights = (budget: (typeof budgets)[number]) =>
     getBudgetInsights({
       budget,
       context: monthContext,
-      previousMonthTransactions,
+      previousMonthTransactions: data.previousTransactions,
     });
 
   return (
     <PageShell>
       <PageTitle
+        heading={<h1 className="text-xl font-bold">Budgets</h1>}
         action={
           <AddBudgetDialog
             categories={budgetDialogCategories}
@@ -66,10 +60,8 @@ export default async function BudgetsPage({
             month={data.monthKey}
           />
         }
-      >
-        Budgets
-      </PageTitle>
-
+      />
+      
       <BudgetToolbar
         month={data.monthKey}
         monthDelta={currentTotals.expense - previousTotals.expense}

@@ -18,10 +18,10 @@ export function MetricCard({
   value: string;
 }) {
   const tones: Record<MetricTone, string> = {
-    blue: "bg-blue-50 text-blue-600",
-    green: "bg-emerald-50 text-emerald-600",
-    red: "bg-rose-50 text-rose-600",
-    violet: "bg-violet-50 text-violet-600",
+    blue: "bg-blue-500/10 text-blue-600",
+    green: "bg-emerald-500/10 text-emerald-600",
+    red: "bg-rose-500/10 text-rose-600",
+    violet: "bg-violet-500/10 text-violet-600",
   };
 
   return (
@@ -29,11 +29,11 @@ export function MetricCard({
       <div className="flex items-center gap-2">
         <span
           className={cn(
-            "flex size-8 items-center justify-center rounded-md",
+            "flex size-8 items-center justify-center rounded-md bg-amber-700",
             tones[tone]
           )}
         >
-          <Icon className="size-4" />
+          <Icon className="size-4"/>
         </span>
         <p className="text-xs font-semibold text-muted-foreground">{label}</p>
       </div>
