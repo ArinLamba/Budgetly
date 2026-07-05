@@ -4,11 +4,13 @@ import type {
   TransactionSummaryPeriod,
   TransactionTab,
 } from "./types";
+import { getMonthKey, normalizeMonthKey } from "../../_lib/date-utils";
 
 export const transactionPageSize = 50;
 
 export const defaultTransactionFilters: TransactionFilters = {
   categoryId: "all",
+  month: getMonthKey(),
   page: 1,
   period: "month",
   query: "",
@@ -52,6 +54,9 @@ export function normalizeTransactionFilters(
       typeof params.categoryId === "string" && params.categoryId
         ? params.categoryId
         : defaultTransactionFilters.categoryId,
+    month: normalizeMonthKey(
+      typeof params.month === "string" ? params.month : undefined
+    ),
     page: Number.isInteger(pageValue) && pageValue > 0 ? pageValue : 1,
     period: normalizePeriod(
       typeof params.period === "string" ? params.period : undefined

@@ -23,7 +23,7 @@ import {
   addMonthsToMonthKey,
   getDateKey,
   getDayOfWeek,
-  getMonthKey,
+  normalizeMonthKey,
 } from "../../_lib/date-utils";
 import type {
   TransactionFilters,
@@ -111,7 +111,7 @@ export async function getCurrentDbUser() {
   return createdUser;
 }
 
-function getDateRange(period: TransactionSummaryPeriod) {
+function getDateRange(period: TransactionSummaryPeriod, month: string) {
   const today = getDateKey();
 
   if (period === "all") {
@@ -145,7 +145,7 @@ function getDateRange(period: TransactionSummaryPeriod) {
     };
   }
 
-  const monthKey = getMonthKey();
+  const monthKey = normalizeMonthKey(month);
 
   return {
     end: addMonthsToMonthKey(monthKey, 1),
@@ -154,7 +154,7 @@ function getDateRange(period: TransactionSummaryPeriod) {
 }
 
 function getTransactionWhere(userId: number, filters: TransactionFilters) {
-  const range = getDateRange(filters.period);
+  const range = getDateRange(filters.period, filters.month);
   const conditions = [eq(transactionsTable.userId, userId)];
   const categoryId = Number(filters.categoryId);
 

@@ -76,7 +76,7 @@ export function TransactionAppearancePicker({
 
           <Separator />
 
-          <div className="max-h-[52dvh] overflow-y-auto overscroll-contain pr-1">
+          <div className="max-h-[40dvh] overflow-y-auto overscroll-contain pr-1">
             {transactionIconCategories.map((category) => (
               <div key={category.label}>
                 <div className="sticky top-0 z-10 bg-popover py-1 text-xs font-medium text-muted-foreground">

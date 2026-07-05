@@ -31,6 +31,26 @@ export function getMonthKey(date = new Date()) {
   return `${getDateKey(date).slice(0, 7)}-01`;
 }
 
+export function normalizeMonthKey(month: string | undefined, fallback = getMonthKey()) {
+  if (!month) {
+    return fallback;
+  }
+
+  const match = month.match(/^(\d{4})-(\d{2})(?:-\d{2})?$/);
+
+  if (!match) {
+    return fallback;
+  }
+
+  const monthNumber = Number(match[2]);
+
+  if (monthNumber < 1 || monthNumber > 12) {
+    return fallback;
+  }
+
+  return `${match[1]}-${match[2]}-01`;
+}
+
 export function getDateFromKey(dateKey: string) {
   const [year, month, day] = dateKey.split("-").map(Number);
 

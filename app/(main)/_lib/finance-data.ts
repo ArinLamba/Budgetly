@@ -17,6 +17,7 @@ import {
   getDaysInMonth,
   getMonthKey,
   getMonthRangeKeys,
+  normalizeMonthKey,
 } from "./date-utils";
 
 export type FinanceTransaction = Awaited<
@@ -31,11 +32,11 @@ export function getCurrentMonthKey(date = new Date()) {
 }
 
 export function getMonthRange(monthKey = getCurrentMonthKey()) {
-  return getMonthRangeKeys(monthKey);
+  return getMonthRangeKeys(normalizeMonthKey(monthKey));
 }
 
 export function addMonths(monthKey: string, offset: number) {
-  return addMonthsToMonthKey(monthKey, offset);
+  return addMonthsToMonthKey(normalizeMonthKey(monthKey), offset);
 }
 
 export function isDateInRange(date: string, range: { end: string; start: string }) {
@@ -221,20 +222,21 @@ export async function getDashboardData({
   monthKey?: string;
 }) {
   const user = await getCurrentDbUser();
-  const range = getMonthRange(monthKey);
+  const normalizedMonthKey = normalizeMonthKey(monthKey);
+  const range = getMonthRange(normalizedMonthKey);
   const [categories, monthTransactions, recentTransactions, budgets, balance] =
     await Promise.all([
       getCategories(user.id),
       getTransactionsForRange(user.id, range),
       getRecentTransactions(user.id),
-      getBudgetsForMonth(user.id, monthKey),
+      getBudgetsForMonth(user.id, normalizedMonthKey),
       getBalance(user.id),
     ]);
   const [categorySummaries, totals] = await Promise.all([
     getCategorySummariesForRange(
       user.id,
       categories,
-      getCategoryRange(monthKey, categoryPeriod)
+      getCategoryRange(normalizedMonthKey, categoryPeriod)
     ),
     getTotalsForRange(user.id, range),
   ]);
@@ -244,7 +246,7 @@ export async function getDashboardData({
     budgets,
     categories,
     categorySummaries,
-    monthKey,
+    monthKey: normalizedMonthKey,
     monthTransactions,
     recentTransactions,
     totals,
@@ -254,22 +256,23 @@ export async function getDashboardData({
 
 export async function getBudgetsData(monthKey = getCurrentMonthKey()) {
   const user = await getCurrentDbUser();
-  const currentRange = getMonthRange(monthKey);
-  const previousMonthKey = addMonths(monthKey, -1);
+  const normalizedMonthKey = normalizeMonthKey(monthKey);
+  const currentRange = getMonthRange(normalizedMonthKey);
+  const previousMonthKey = addMonths(normalizedMonthKey, -1);
   const previousRange = getMonthRange(previousMonthKey);
   const [categories, currentTransactions, previousTransactions, budgets] =
     await Promise.all([
       getCategories(user.id),
       getTransactionsForRange(user.id, currentRange),
       getTransactionsForRange(user.id, previousRange),
-      getBudgetsForMonth(user.id, monthKey),
+      getBudgetsForMonth(user.id, normalizedMonthKey),
     ]);
 
   return {
     budgets,
     categories,
     currentTransactions,
-    monthKey,
+    monthKey: normalizedMonthKey,
     previousTransactions,
     user,
   };
@@ -277,7 +280,8 @@ export async function getBudgetsData(monthKey = getCurrentMonthKey()) {
 
 export async function getReportsData(monthKey = getCurrentMonthKey()) {
   const user = await getCurrentDbUser();
-  const range = getMonthRange(monthKey);
+  const normalizedMonthKey = normalizeMonthKey(monthKey);
+  const range = getMonthRange(normalizedMonthKey);
   const [categories, monthTransactions, totals] = await Promise.all([
     getCategories(user.id),
     getTransactionsForRange(user.id, range),
@@ -291,7 +295,7 @@ export async function getReportsData(monthKey = getCurrentMonthKey()) {
 
   return {
     categorySummaries,
-    monthKey,
+    monthKey: normalizedMonthKey,
     monthTransactions,
     totals,
     user,
@@ -300,13 +304,14 @@ export async function getReportsData(monthKey = getCurrentMonthKey()) {
 
 export async function getCalendarData(monthKey = getCurrentMonthKey()) {
   const user = await getCurrentDbUser();
+  const normalizedMonthKey = normalizeMonthKey(monthKey);
   const monthTransactions = await getTransactionsForRange(
     user.id,
-    getMonthRange(monthKey)
+    getMonthRange(normalizedMonthKey)
   );
 
   return {
-    monthKey,
+    monthKey: normalizedMonthKey,
     monthTransactions,
     user,
   };

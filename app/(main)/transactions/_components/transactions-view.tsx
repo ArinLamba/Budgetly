@@ -51,6 +51,7 @@ export function TransactionsView({
 
     setParam(params, "tab", nextFilters.tab);
     setParam(params, "period", nextFilters.period);
+    setParam(params, "month", nextFilters.month);
     setParam(params, "categoryId", nextFilters.categoryId);
     setParam(params, "sort", nextFilters.sort);
     setParam(params, "query", nextFilters.query.trim());
@@ -98,6 +99,7 @@ export function TransactionsView({
         onCategoryChange={(categoryId) =>
           pushFilters({ ...filters, categoryId, page: 1 })
         }
+        onMonthChange={(month) => pushFilters({ ...filters, month, page: 1 })}
         onQueryChange={(query) => pushFilters({ ...filters, page: 1, query })}
         onPeriodChange={(period) => pushFilters({ ...filters, page: 1, period })}
         onSortChange={(sort) => pushFilters({ ...filters, page: 1, sort })}

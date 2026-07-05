@@ -31,6 +31,7 @@ export type TransactionSummaryPeriod =
 
 export type TransactionFilters = {
   categoryId: string;
+  month: string;
   page: number;
   period: TransactionSummaryPeriod;
   query: string;
