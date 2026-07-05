@@ -16,7 +16,15 @@ import { SIDEBAR_ITEMS } from "@/lib/constants"
 import Image from "next/image"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { ThemeSelect } from "./theme-toggle";
+import dynamic from "next/dynamic";
+
+const ThemeSelect = dynamic(
+  () => import("./theme-toggle").then((module) => module.ThemeSelect),
+  {
+    loading: () => <div className="h-8 w-full rounded-lg border bg-muted/30" />,
+    ssr: false,
+  }
+);
 
 export const AppSidebar = () => {
 
