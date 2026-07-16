@@ -31,6 +31,7 @@ import type {
   TransactionSummaryPeriod,
 } from "./types";
 import { defaultTransactionFilters, transactionPageSize } from "./filters";
+import { cache } from "react";
 
 const defaultCategories = [
   { name: "Food & Dining", type: "expense", color: "#fb923c", icon: "Food" },
@@ -213,7 +214,7 @@ function getTransactionOrderBy(sort: TransactionSort) {
   return [desc(transactionsTable.transactionDate), desc(transactionsTable.id)];
 }
 
-export async function getTransactionPage(filters = defaultTransactionFilters) {
+export const getTransactionPage = cache(async(filters = defaultTransactionFilters) => {
   const user = await getCurrentDbUser();
   const where = getTransactionWhere(user.id, filters);
   const offset = (filters.page - 1) * transactionPageSize;
@@ -279,13 +280,13 @@ export async function getTransactionPage(filters = defaultTransactionFilters) {
     totalCount,
     transactions: rows,
   };
-}
+});
 
-export async function getTransactions() {
+export const getTransactions = cache (async() => {
   return (await getTransactionPage()).transactions;
-}
+});
 
-export async function getTransactionFormOptions() {
+export const getTransactionFormOptions = cache(async() => {
   const user = await getCurrentDbUser();
   await ensureBaseTransactionDefaults(user.id);
 
@@ -301,9 +302,9 @@ export async function getTransactionFormOptions() {
   ]);
 
   return { accounts, categories };
-}
+});
 
-export async function ensureBaseTransactionDefaults(userId: number) {
+export const ensureBaseTransactionDefaults = cache(async(userId: number) => {
   const [account] = await db
     .insert(accountsTable)
     .values({
@@ -347,9 +348,9 @@ export async function ensureBaseTransactionDefaults(userId: number) {
   }
 
   return existingAccount;
-}
+});
 
-export async function ensureTransactionDefaults(userId: number) {
+export const ensureTransactionDefaults = cache(async (userId: number) => {
   const existingAccount = await ensureBaseTransactionDefaults(userId);
 
   await Promise.all(
@@ -369,4 +370,4 @@ export async function ensureTransactionDefaults(userId: number) {
   );
 
   return existingAccount;
-}
+});
