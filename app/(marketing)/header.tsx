@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { SignInButton, useAuth, UserButton } from "@clerk/nextjs";
-import { Loader, Menu } from "lucide-react";
+import { ArrowRight, Loader, Menu } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -24,32 +24,21 @@ export const Header = () => {
         </Link>
 
         <div className="flex items-center gap-3">
-          <Link
-            className="hidden text-sm font-bold text-slate-500 transition-colors hover:text-slate-950 sm:block"
-            href="#features"
-          >
-            Features
-          </Link>
-          <Link
-            className="hidden text-sm font-bold text-slate-500 transition-colors hover:text-slate-950 sm:block"
-            href="/dashboard"
-          >
-            Dashboard
-          </Link>
+          
           {!isLoaded ? (
             <Loader className="size-5 animate-spin text-violet-600" />
           ) : isSignedIn ? (
             <>
-              <Button asChild className="hidden bg-violet-600 text-white hover:bg-violet-500 sm:inline-flex">
-                <Link href="/dashboard">Open app</Link>
+              <Button asChild className="hidden bg-violet-600 text-white hover:bg-violet-500 sm:inline-flex rounded-2xl">
+                <Link href="/dashboard">Dashboard <ArrowRight className="size-4" /></Link>
               </Button>
               <UserButton />
             </>
           ) : (
             <SignInButton mode="modal">
               <Button
-                className="hidden border-slate-200 bg-white text-slate-900 hover:bg-slate-100 sm:inline-flex"
-                variant="outline"
+                className="hidden  sm:inline-flex"
+                variant="main"
               >
                 Login
               </Button>

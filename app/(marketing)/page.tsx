@@ -103,17 +103,17 @@ export default function Home() {
   return (
     <div className="w-full overflow-hidden bg-slate-50 text-slate-950">
       <section className="px-4 py-8 sm:px-6 lg:px-8 lg:py-10">
-        <div className="mx-auto grid w-full max-w-7xl gap-8 lg:grid-cols-[0.82fr_1.18fr] lg:items-center">
-          <div className="max-w-2xl">
+        <div className="mx-auto lg:flex w-full max-w-7xl gap-8">
+          <div className="lg:max-w-[350px] w-full bg-amber-20">
             <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-violet-200 bg-white px-3 py-1 text-xs font-bold text-violet-700 shadow-sm">
               <Sparkles className="size-3.5" />
               Built for budgets, bills, and better money habits
             </div>
 
-            <h1 className="max-w-xl text-5xl font-black tracking-normal text-slate-950 sm:text-6xl lg:text-7xl">
+            <h1 className="max-w-lg text-5xl font-black tracking-normal text-slate-950 ">
               Budgetly
             </h1>
-            <p className="mt-5 max-w-xl text-lg font-semibold leading-8 text-slate-600">
+            <p className="mt-4 max-w-lg text-lg font-semibold leading-7 text-slate-600">
               A personal finance dashboard for tracking transactions, planning
               monthly budgets, and seeing exactly where your money is going.
             </p>
@@ -128,16 +128,19 @@ export default function Home() {
               ) : (
                 <>
                   <SignUpButton mode="modal">
-                    <Button className="h-12 bg-violet-600 px-6 text-white hover:bg-violet-500">
+                    <Button 
+                      className="h-12 bg-violet-600  text-white hover:bg-violet-500"
+                      size={"lg"}
+                    >
                       Start budgeting <ArrowRight className="size-4" />
                     </Button>
                   </SignUpButton>
                   <SignInButton mode="modal">
                     <Button
-                      className="h-12 border-slate-200 bg-white px-6 text-slate-900 hover:bg-slate-100"
-                      variant="outline"
+                      className="h-12 border-slate-200 bg-blue-400/20 text-indigo-600 hover:bg-slate-100 "
+                      size={"lg"}
                     >
-                      I already have an account
+                      Already have an Account
                     </Button>
                   </SignInButton>
                 </>
@@ -149,6 +152,11 @@ export default function Home() {
               <Metric label="Budget left" value="41%" />
               <Metric label="Goals active" value="4" />
             </div>
+            
+            <div className="hidden lg:block">
+              <PhonePreview title="Transactions" />
+            </div>
+           
           </div>
 
           <DashboardPreview />
@@ -195,7 +203,7 @@ export default function Home() {
       </section>
     </div>
   );
-}
+};
 
 function Metric({ label, value }: { label: string; value: string }) {
   return (
@@ -209,13 +217,13 @@ function Metric({ label, value }: { label: string; value: string }) {
 function DashboardPreview() {
   return (
     <div className="relative">
-      <div className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-2xl shadow-slate-200">
-        <div className="grid min-h-[620px] grid-cols-[150px_1fr]">
+      <div className="overflow-hidden rounded-lg border border-slate-200 shadow-2xl shadow-slate-200 mt-5 lg:mt-0">
+        <div className="flex ">
           <Sidebar />
-          <div className="min-w-0 bg-white p-5 sm:p-6">
-            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="w-full p-4 bg-white ">
+            <div className="flex gap-4 w-full items-center justify-between">
               <div>
-                <p className="text-2xl font-black tracking-normal text-slate-950">
+                <p className="lg:text-2xl text-xl font-black tracking-normal text-slate-950">
                   Good morning, Ava
                 </p>
                 <p className="mt-1 text-sm font-semibold text-slate-500">
@@ -228,7 +236,7 @@ function DashboardPreview() {
               </button>
             </div>
 
-            <div className="mt-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+            <div className="mt-6 grid gap-3 grid-cols-2 xl:grid-cols-4">
               {stats.map((stat) => (
                 <StatCard key={stat.label} {...stat} />
               ))}
@@ -242,8 +250,8 @@ function DashboardPreview() {
                     This Month
                   </span>
                 </div>
-                <div className="mt-6 grid items-center gap-5 sm:grid-cols-[170px_1fr]">
-                  <div className="relative mx-auto size-40 rounded-full bg-[conic-gradient(#fb6a2a_0_32%,#3b82f6_32%_52%,#34d399_52%_69%,#8b5cf6_69%_82%,#fbbf24_82%_92%,#94a3b8_92%_100%)]">
+                <div className="mt-6 grid items-center gap-5 grid-cols-[170px_1fr]">
+                  <div className="relative mx-auto size-45 rounded-full bg-[conic-gradient(#fb6a2a_0_32%,#3b82f6_32%_52%,#34d399_52%_69%,#8b5cf6_69%_82%,#fbbf24_82%_92%,#94a3b8_92%_100%)]">
                     <div className="absolute inset-10 flex flex-col items-center justify-center rounded-full bg-white">
                       <span className="text-lg font-black">Rs 10,500</span>
                       <span className="text-xs font-semibold text-slate-500">Total</span>
@@ -335,7 +343,7 @@ function Sidebar() {
   ];
 
   return (
-    <aside className="hidden bg-slate-950 p-4 text-white sm:block">
+    <aside className="hidden bg-slate-950 p-4 text-white md:block max-w-[150px]">
       <div className="flex items-center gap-2">
         <Image alt="Budgetly logo" className="rounded-md" height={30} src="/logo.svg" width={30} />
         <span className="text-sm font-black">Budgetly</span>
@@ -441,7 +449,7 @@ function TransactionRow({
 
 function PhonePreview({ title }: { title: string }) {
   return (
-    <div className="rounded-md border-[6px] border-slate-950 bg-white p-4 shadow-xl">
+    <div className="rounded-md  bg-white p-4  border border-slate-200 shadow-2xl shadow-slate-200 lg:mt-5 mt-0">
       <div className="flex items-center justify-between">
         <p className="text-lg font-black">{title}</p>
         <span className="text-xs font-black">9:41</span>
@@ -451,13 +459,13 @@ function PhonePreview({ title }: { title: string }) {
         <p className="mt-2 text-2xl font-black">Rs 24,500</p>
       </div>
       <div className="mt-4 space-y-3">
-        {transactions.slice(0, 3).map((transaction) => (
+        {transactions.slice(0, 2).map((transaction) => (
           <TransactionRow key={`${title}-${transaction.name}`} {...transaction} />
         ))}
       </div>
       <button className="mt-4 flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-violet-600 text-sm font-bold text-white">
         <Plus className="size-4" />
-        Add Transaction
+        Add {title}
       </button>
     </div>
   );
